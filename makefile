@@ -4,6 +4,13 @@
 
 all: piezo.pdf
 
+clean:
+	rm -rf build
+
+quick: piezo.tex
+	pdflatex piezo.tex
+	rm *.aux *.log piezoNotes.bib
+
 piezo.pdf: piezo.tex
 	mkdir -p build
 	latexmk -pdf -pdflatex="pdflatex -interaction=nonstopmode -file-line-error" -use-make -jobname=build/piezo piezo.tex
