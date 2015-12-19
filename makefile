@@ -9,6 +9,7 @@ clean:
 
 quick: piezo.tex
 	pdflatex piezo.tex
+	pdflatex piezo.tex
 	rm *.aux *.log piezoNotes.bib
 
 piezo.pdf: piezo.tex
