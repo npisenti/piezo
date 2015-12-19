@@ -10,12 +10,19 @@
 % 
 % Copy this file to another name and then work on that file.
 % That way, you always have this original template file to use.
-
-\documentclass[aip,rsi,reprint,graphicx,draft]{revtex4-1} % for checking your page length
+\documentclass[aip,rsi,reprint]{revtex4-1} % for checking your page length
+%\documentclass[aip,rsi,reprint,graphicx,draft]{revtex4-1} % for checking your page length
 %\\documentclass[aip,rsi,preprint,graphicx]{revtex4-1} % for review purposes
 
 \usepackage{siunitx}
+\usepackage{amsmath}
 
+\usepackage{graphicx}
+%\usepackage{caption}
+%\usepackage{subcaption}
+
+%% Work with illustrator *.ai files...
+\DeclareGraphicsRule{.ai}{pdf}{.ai}{}
 
 \begin{document}
 
@@ -44,7 +51,7 @@
 %\homepage[]{Your web page}
 %\thanks{}
 %\altaffiliation{}
-\affiliation{Joint Quantum Institute, University of Maryland and NIST}
+\affiliation{Joint Quantum Institute, University of Maryland and National Institute of Standards and Technology}
 
 % Collaboration name, if desired (requires use of superscriptaddress option in \documentclass). 
 % \noaffiliation is required (may also be used with the \author command).
@@ -68,11 +75,48 @@ A low-voltage (\SI{\pm 10}{\volt}), high bandwidth modulation input is capable o
 % References should be done using the \cite and \label commands
 \section{Introduction}
 \label{Sec:Introduction}
-Introduction, why we care, overview of circuit design elements/features.
+
+Many instrumentation applications in the modern laboratory require agile, low-noise voltage sources that can supply hundreds of volts or more.
+Such high-voltage amplifiers are useful for micro-positioning applications, driving piezo-actuated mirrors (e.g., in a scanning Fabry-Per{\`o}t cavity) or diffraction gratings (such as in extended-cavity diode lasers).
+Precision high voltage sources can also be used to bias low-noise, high-bandwidth photodiodes [details?], Other applications...? biophysics? medical devices?
+Often, these applications are operated in a closed feedback loop, where small voltage changes on top of a large DC voltage are necessary to correct for some disturbance to the system.
+
+Traditionally, laboratory electronics capable of supplying high voltages fall under one of two architectural umbrellas: switching converters, and ``linear'' amplifiers.
+DC-DC converters are efficient and can work at very high voltages, but suffer from switching noise and limited control bandwidths.
+Linear-type devices are typically constructed from a high-voltage operational amplifier (op-amp), powered either from a high voltage linear regulator or more typically from a secondary switching converter.
+While the op-amp provides \SI{100}{\decibel} or more of power-supply noise rejection, a high-voltage op-amp require substantially more power than an equivalent switching circuit.
+In either case, the output voltage  $V_{\text{out}}$ is typically given by
+\begin{align}
+  V_{\text{out}} &= G_p(V_{\text{DC}} + V_{\text{mod}})\, \text{,}
+\end{align}
+where $G_p$ is the piezo amplifier gain (typically {$G_p\approx \num{10} - \num{20}$} or more), $V_{\text{DC}}$ is a DC setpoint, and $V_{\text{mod}}$ is a modulation input used for closed-loop control.
+
+It is often the case, however, that in closed-loop feedback applications we do not need and often do not want the modulation control to have a high gain.
+Because the closed loop gain cannot be increased without limit, $G_p V_{\text{mod}} \gg 1$ means the servo gain $G$ must be proportionally smaller to keep the lock stable.
+Because noise added by the servo is suppressed by $1/|G|$ in the large gain limit, if $G$ is limited to achieve a stable lock it is no longer as effective at servoing its own noise.
+
+To avoid this problem, we desire a high voltage amplifier which separates the ``setpoint'' gain $G_p$ from the modulation gain, $G_m$. That is,
+\begin{align}
+  V_{\text{out}} &= G_p V_{\text{DC}} + G_m V_{\text{mod}}\, \text{,}
+  \label{Eq:PiezoTransfer}
+\end{align}
+where now we can make $G_m \approx 1$.
 
 \section{Circuit Design}
 \label{Sec:Circuit}
+
+\begin{figure}[ht]
+\includegraphics[width=\linewidth]{fig/PiezoCircuit.ai}
+%\captionsetup{justification=justified}
+\caption{Schematic of the high voltage stabilization.
+The voltage HV is generated using a Texas Instruments DRV2700 high voltage driver in flyback configuration (see Fig.~\ref{Fig:DRV2700}).
+A fast, very high slew-rate op-amp senses the output voltage across $R_1$ and $R_2$, and servos it by modulating the node at ``HV floating gnd''.
+The $V_{\text{DC}}$ gain is set by $\left(1+R_1/R_2\right)$, while the modulation gain is set by $-R_{\text{mod}}/R_{\text{fb}}$.
+The capacitor linking the floating ground node to the output allows the op-amp to remove residual switching noise and stabilize the DC output according to the transfer function given in Eq.~(\ref{Eq:PiezoTransfer}). \label{Fig:PiezoCircuit}}
+\end{figure}
+
 Discussion of individual circuit components
+
 
 \section{Results}
 \label{Sec:Results}
