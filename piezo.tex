@@ -16,6 +16,7 @@
 
 \usepackage{siunitx}
 \usepackage{amsmath}
+\usepackage{amsfonts}
 
 \usepackage{graphicx}
 %\usepackage{caption}
@@ -105,18 +106,24 @@ where now we can make $G_m \approx 1$.
 \section{Circuit Design}
 \label{Sec:Circuit}
 
-\begin{figure}[ht]
-\includegraphics[width=\linewidth]{fig/PiezoCircuit.ai}
-%\captionsetup{justification=justified}
+The core elements of this circuit revolve around the newly-available Texas Instruments DRV2700 piezo driver.
+\footnote{The identification of commercial products is for information only and does not imply recommendation or endorsement by the National Institute of Standards and Technology.}
+This single-chip integrated circuit can be operated as a boost converter driving an on-chip differential amplifier up to \SI{100}{\volt}, or as a flyback regulator up to \SI{1}{\kilo\volt}. 
+In flyback configuration, the DRV2700 drives a step-up transformer, providing the galvanically isolated voltage $\mathbf{HV}$ at its output; see Fig.~\ref{Fig:DRV2700}.
+
+\begin{figure*}[t]
+\includegraphics[width=\textwidth]{fig/DRV2700.ai}
 \caption{Schematic of the high voltage stabilization.
 The voltage HV is generated using a Texas Instruments DRV2700 high voltage driver in flyback configuration (see Fig.~\ref{Fig:DRV2700}).
 A fast, very high slew-rate op-amp senses the output voltage across $R_1$ and $R_2$, and servos it by modulating the node at ``HV floating gnd''.
 The $V_{\text{DC}}$ gain is set by $\left(1+R_1/R_2\right)$, while the modulation gain is set by $-R_{\text{mod}}/R_{\text{fb}}$.
 The capacitor linking the floating ground node to the output allows the op-amp to remove residual switching noise and stabilize the DC output according to the transfer function given in Eq.~(\ref{Eq:PiezoTransfer}). \label{Fig:PiezoCircuit}}
-\end{figure}
+\end{figure*}
 
-Discussion of individual circuit components
-
+In isolation, the DRV2700 is not suited for low-noise laboratory instrumentation. 
+The output ripple, even after heavy filtering, can be as high as a few volts, and standard filter techniques to reduce this noise simultaneously reduce the modulation bandwidth.
+Even if this were not the case, it remains unlikely that the RMS noise could be brought below $\SI{1}{\milli\volt}$, which is the regime we would like to operate in for certain low-noise applications in the laboratory.
+With this in mind, we designed a circuit that leverages the integrated flyback regulator of the DRV2700 but uses a secondary feedback mechanism to both eliminate switching noise and provide a low-gain, DC-coupled feedback path for closed loop applications.
 
 \section{Results}
 \label{Sec:Results}
