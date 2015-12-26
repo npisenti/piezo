@@ -106,10 +106,14 @@ where now we can make $G_m \approx 1$.
 \section{Circuit Design}
 \label{Sec:Circuit}
 
-The core elements of this circuit revolve around the newly-available Texas Instruments DRV2700 piezo driver.
+The design is based on the newly-available Texas Instruments DRV2700 piezo driver.
 \footnote{The identification of commercial products is for information only and does not imply recommendation or endorsement by the National Institute of Standards and Technology.}
-This single-chip integrated circuit can be operated as a boost converter driving an on-chip differential amplifier up to \SI{100}{\volt}, or as a flyback regulator up to \SI{1}{\kilo\volt}. 
-In flyback configuration, the DRV2700 drives a step-up transformer, providing the galvanically isolated voltage $\mathbf{HV}$ at its output; see Fig.~\ref{Fig:DRV2700}.
+This single-chip integrated circuit (IC) can be operated as a boost converter to drive an on-chip differential amplifier up to \SI{100}{\volt}, or as a flyback converter up to \SI{1}{\kilo\volt}.
+In flyback configuration, the internal-boost switch of the DRV2700 drives a step-up transformer.
+When the switch is closed, current flows through the primary coil of the transformer and induces a corresponding voltage across the secondary coil, which charges a capacitor at the output ($\text{C}_{\text{HV}}$ in Fig.~\ref{Fig:PiezoCircuit}).
+When the switch opens, a negative voltage appears across the secondary coil of the transformer, but a diode prevents the capacitor from discharging.
+One key benefit of this topology is the galvanically isolated output.
+By sensing the output voltage across a resistive divider, we servo the floating ground from the flyback converter to remove switching noise and stabilize the high voltage output; see Fig.~\ref{Fig:PiezoCircuit}.
 
 \begin{figure*}[t]
 \includegraphics[width=\textwidth]{fig/DRV2700.ai}
@@ -121,9 +125,26 @@ The capacitor linking the floating ground node to the output allows the op-amp t
 \end{figure*}
 
 In isolation, the DRV2700 is not suited for low-noise laboratory instrumentation. 
-The output ripple, even after heavy filtering, can be as high as a few volts, and standard filter techniques to reduce this noise simultaneously reduce the modulation bandwidth.
-Even if this were not the case, it remains unlikely that the RMS noise could be brought below $\SI{1}{\milli\volt}$, which is the regime we would like to operate in for certain low-noise applications in the laboratory.
-With this in mind, we designed a circuit that leverages the integrated flyback regulator of the DRV2700 but uses a secondary feedback mechanism to both eliminate switching noise and provide a low-gain, DC-coupled feedback path for closed loop applications.
+The output ripple, even after heavy filtering, can be as high as a few volts, and standard filtering techniques to reduce this noise simultaneously reduces the modulation control bandwidth.
+Even if this were not the case, it remains unlikely that the RMS noise could be brought below $\SI{1}{\milli\volt}$, which is the operating regime we require for certain low-noise applications in the laboratory.
+Despite this drawback, the flyback converter requires very little current to operate and leverages a compact IC to generate very high voltages, making it versatile and easy to deploy in the lab.
+
+The motivation behind our hybrid architecture is twofold.
+First, to make a switching converter useful for low-noise laboratory instrumentation, we need a way to remove the output ripple and residual switching noise.
+Second, we want to take advantage of low-noise op-amps that only work up to tens of volts to provide a unity gain (DC-coupled) feedback path to the high voltage output.
+The architecture shown in Fig.~\ref{Fig:PiezoCircuit} does just this; a low-noise, high-slew rate op-amp ($\mathbf{U2}$) adjusts the floating ground node of the transformer output to cancel switching noise and sum in an offset given by $V_{\text{mod}}$, while the flyback regulator works close to DC to impose the high voltage across the HV - floating ground output.
+We now explain the operation of each sub-block, and draw attention to important design details.
+
+\subsection{DRV2700 flyback regulator}
+\label{Sec:DRV2700}
+
+\subsection{Low-noise stabilization}
+\label{Sec:LowNoiseStabilization}
+%At high frequencies, this modulation appears directly at the HV node through the capacitors.
+%At quasi-DC frequencies, the flyback regulator adjusts the HV node to keep 
+
+\subsection{Digital control and auxiliary design features}
+\label{Sec:DigControlAuxDesign}
 
 \section{Results}
 \label{Sec:Results}
