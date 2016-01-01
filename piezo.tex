@@ -77,10 +77,33 @@ A low-voltage (\SI{\pm 10}{\volt}), high bandwidth modulation input is capable o
 \section{Introduction}
 \label{Sec:Introduction}
 
-Many instrumentation applications in the modern laboratory require agile, low-noise voltage sources that can supply hundreds of volts or more.
-Such high-voltage amplifiers are useful for micro-positioning applications, driving piezo-actuated mirrors (e.g., in a scanning Fabry-Per{\`o}t cavity) or diffraction gratings (such as in extended-cavity diode lasers).
-Precision high voltage sources can also be used to bias low-noise, high-bandwidth photodiodes [details?], Other applications...? biophysics? medical devices?
-Often, these applications are operated in a closed feedback loop, where small voltage changes on top of a large DC voltage are necessary to correct for some disturbance to the system.
+Many instrumentation applications in the modern laboratory require agile, low-noise voltage sources capable of supplying hundreds of volts or more.
+For example, piezo-actuated mirrors and diffraction gratings play an important role in many atomic physics experiments (used, e.g., in scanning Fabry-Per{\`o}t cavities and extended-cavity diode lasers).
+Avalanche photodiodes require a low-noise reverse bias of a few hundred volts or more (cite paper Alessandro/Prasoon are using?).
+Other applications...? biophysics? medical devices?
+
+Often, these applications are operated in a closed feedback loop, where small voltage changes on top of a large DC voltage are necessary to stabilize the output of a particular system.
+For example, extended-cavity diode lasers adjust their lasing frequency by changing the angle of a diffraction grating that supplies optical feedback to the diode.
+To stabilize this frequency, a servo controller measures deviations from the desired value and adjusts the voltage controlling the grating angle to correct for any difference.
+Because the servo electronics operate at low voltage, a secondary high-voltage (HV) amplifier is required to drive the piezoelectric actuator.
+This HV gain stage typically accepts an external ``modulation input'', $V_{\text{mod}}$, and produces an amplified voltage $V_{\text{out}}$ according to
+\begin{align}
+V_{\text{out}} = G_p V_{\text{mod}} + V_0
+\end{align}
+where $G_p$ is the amplifier gain and $V_0$ is an optional DC offset.
+Typically, {$G_p\approx \num{10} - \num{20}$} or more such that reasonable voltages $V_{\text{mod}}$ can span the entire output range $V_{\text{out}}$.
+
+It is often the case, however, that in closed-loop feedback applications we do not need and often do not want the modulation control to have a high gain.
+Because the closed loop gain $G \equiv G_s G_p$ cannot be increased without limit, $G_p \gg 1$ means the servo gain $G_s$ must be proportionally smaller to keep the lock stable.
+In locked configuration, any noise introduced by the servo is suppressed by $1/|G_s|$ in the large gain limit.
+If $G_s$ is limited to achieve a stable lock, it is no longer effective at servoing its own noise.
+
+To avoid this problem, we desire a high voltage amplifier which separates the ``setpoint'' gain, $G_{\text{dc}}$, from the modulation gain, $G_{\text{mod}}$. That is,
+\begin{align}
+  V_{\text{out}} &= G_{\text{dc}} V_{\text{dc}} + G_{\text{mod}} V_{\text{mod}}\, \text{,}
+  \label{Eq:PiezoTransfer}
+\end{align}
+where now we can make $G_{\text{mod}} \approx 1$.
 
 Traditionally, laboratory electronics capable of supplying high voltages fall under one of two architectural umbrellas: switching converters, and ``linear'' amplifiers.
 DC-DC converters are efficient and can work at very high voltages, but suffer from switching noise and limited control bandwidths.
@@ -90,18 +113,8 @@ In either case, the output voltage  $V_{\text{out}}$ is typically given by
 \begin{align}
   V_{\text{out}} &= G_p(V_{\text{DC}} + V_{\text{mod}})\, \text{,}
 \end{align}
-where $G_p$ is the piezo amplifier gain (typically {$G_p\approx \num{10} - \num{20}$} or more), $V_{\text{DC}}$ is a DC setpoint, and $V_{\text{mod}}$ is a modulation input used for closed-loop control.
+where $G_p$ is the piezo amplifier gain, $V_{\text{DC}}$ is a DC setpoint, and $V_{\text{mod}}$ is a modulation input used for closed-loop control.
 
-It is often the case, however, that in closed-loop feedback applications we do not need and often do not want the modulation control to have a high gain.
-Because the closed loop gain cannot be increased without limit, $G_p V_{\text{mod}} \gg 1$ means the servo gain $G$ must be proportionally smaller to keep the lock stable.
-Because noise added by the servo is suppressed by $1/|G|$ in the large gain limit, if $G$ is limited to achieve a stable lock it is no longer as effective at servoing its own noise.
-
-To avoid this problem, we desire a high voltage amplifier which separates the ``setpoint'' gain $G_p$ from the modulation gain, $G_m$. That is,
-\begin{align}
-  V_{\text{out}} &= G_p V_{\text{DC}} + G_m V_{\text{mod}}\, \text{,}
-  \label{Eq:PiezoTransfer}
-\end{align}
-where now we can make $G_m \approx 1$.
 
 \section{Circuit Design}
 \label{Sec:Circuit}
@@ -113,7 +126,7 @@ In flyback configuration, the internal-boost switch of the DRV2700 drives a step
 When the switch is closed, current flows through the primary coil of the transformer and induces a corresponding voltage across the secondary coil, which charges a capacitor at the output ($\text{C}_{\text{HV}}$ in Fig.~\ref{Fig:PiezoCircuit}).
 When the switch opens, a negative voltage appears across the secondary coil of the transformer, but a diode prevents the capacitor from discharging.
 One key benefit of this topology is the galvanically isolated output.
-By sensing the output voltage across a resistive divider, we servo the floating ground from the flyback converter to remove switching noise and stabilize the high voltage output; see Fig.~\ref{Fig:PiezoCircuit}.
+By sensing the output voltage across a resistive divider, we feed back to the floating ground from the flyback converter to remove switching noise and stabilize the high voltage output; see Fig.~\ref{Fig:PiezoCircuit}.
 
 \begin{figure*}[t]
 \includegraphics[width=\textwidth]{fig/DRV2700.ai}
@@ -161,6 +174,13 @@ Careful attention was paid to the layout ...
 
 \subsection{Low-noise stabilization}
 \label{Sec:LowNoiseStabilization}
+
+The low-noise stabilization circuitry was added to remove output ripple and residual switching noise, however it serves a dual purpose as a low-gain, high-bandwidth modulation path to the high-voltage output.
+It uses a very high slew-rate (\SI{4100}{\volt\per\micro\second}) op-amp, the LM7171, connected to the filtered ground node of the flyback converter.
+At high frequencies, the output of this op-amp appears directly at the HV node through the capacitor $C_{\text{out}}$.
+Below the corner set by $C_{\text{out}}$, the output of U2 adjusts the floating ground reference of the flyback converter.
+
+After the passive filter ladder connecting the DRV2700 flyback converter the output,
 %At high frequencies, this modulation appears directly at the HV node through the capacitors.
 %At quasi-DC frequencies, the flyback regulator adjusts the HV node to keep 
 
@@ -168,6 +188,9 @@ The choice of component for resistors $R_1$ and $R_2$ is crucial for the low-noi
 
 \subsection{Digital control and auxiliary design features}
 \label{Sec:DigControlAuxDesign}
+
+\subsection{Noise Analysis}
+\label{Sec:NoiseAnalysis}
 
 \section{Results}
 \label{Sec:Results}
