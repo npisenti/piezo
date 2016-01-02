@@ -16,3 +16,14 @@ Directory structure:
       - makefile
 
 Schematics and board design files can be found at https://github.com/JQIamo/piezo-compact-high-voltage-driver.
+
+## Data/measurements
+
+* FFT -> Switching noise dBc from LM7171 op amp
+* PSD
+* Characteristic scope trace/long-term noise (measure w/ keithly)
+* Use SR560 voltage pre-amp
+
+TODO:
+
+* Look at LIGO design

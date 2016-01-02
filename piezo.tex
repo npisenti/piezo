@@ -152,20 +152,22 @@ We now explain the operation of each sub-block, and draw attention to important 
 \label{Sec:DRV2700}
 
 We based the flyback regulator design off the suggested schematic in the DRV2700 datasheet and evaluation module application note.
-At a basic level, this requires a transformer (ATB3225; 1:10 step-up winding, \SI{7}{\micro\henry} inductance, rated for \SI{0.6}{\ampere}) connected to an output diode and capacitor, and a voltage supplied to the feedback (FB) node.
+At a basic level, the DRV2700 flyback circuit requires a transformer (ATB3225; 1:10 step-up winding, \SI{7}{\micro\henry} inductance, rated for \SI{0.6}{\ampere}) connected to an output diode and capacitor, and a ``sense'' voltage supplied to the feedback (FB) node of the IC.
 Internally, the DRV2700 boost controller tries to drive the FB node to \SI{1.3}{\volt}.
 The op-amp U1 senses the voltage at node \textit{HV} and \textit{GND}${}_\text{HV}$, and adjusts its output such that
 \begin{align}
 \label{Eq:U1Output}
 \text{HV} &= G\cdot V_{\text{dc}} + \text{GND}_{\text{HV}}\,,
 \end{align}
-where the gain $G$ is set by the resistor ratio $R_3/R_4$.
+where the gain $G$ is set by the resistor ratio $R_3/R_4 \equiv R_5/R_6$.
 The capacitors $C_3$ and $C_4$ are chosen such that $C_3 = \SI{22}{\pico\farad}$ and 
 \begin{align}
-\frac{C_4}{C_3} &= \frac{R_3}{R_4~||~R_5}
+\frac{C_4}{C_3} &= \frac{R_3}{R_4~||~R_5}\,,
 \end{align}
 as suggested by the datasheet.
 This pseudo-differential configuration ensures that, in the equilibrium given by Eq.~(\ref{Eq:U1Output}), the output of U1 is driven to \SI{0}{\volt}; the resistive divider $R_9$ and $R_{10}$ is then chosen such that $R_9/(R_9~||~R_{10}) = \SI{1.3}{\volt}/\SI{5}{\volt} \approx \num{0.26}$.
+
+
 
 Notes here about expected, measured bandwidth??
 
