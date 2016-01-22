@@ -155,7 +155,8 @@ The motivation behind our hybrid architecture is twofold.
 First, to make a switching converter useful for low-noise laboratory instrumentation, we need a way to remove the output ripple and residual switching noise.
 Second, we want to take advantage of low-noise op-amps that only work up to tens of volts to provide a unity gain (DC-coupled) feedback path to the high voltage output.
 The architecture shown in Fig.~\ref{Fig:PiezoCircuit} does just this; a low-noise, high-slew rate op-amp ($\mathbf{U2}$) adjusts the floating ground node of the transformer output to cancel switching noise and sum in an offset given by $V_{\text{mod}}$, while the flyback regulator works close to DC to impose the high voltage across the HV - floating ground output.
-We now explain the operation of each sub-block, and draw attention to important design details.
+We now explain the operation of each sub-block, and draw attention to important design details. 
+The full schematic, including Gerbers, Bill of Materials, and layout design files, can be found on GitHub~\footnote{\protect\url{https://github.com/JQIamo/piezo-compact-high-voltage-driver}}.
 
 \subsection{DRV2700 flyback regulator}
 \label{Sec:DRV2700}
@@ -201,6 +202,24 @@ For a detailed noise analysis, see Sec.~\ref{Sec:NoiseAnalysis}.
 
 \subsection{Digital control and auxiliary design features}
 \label{Sec:DigControlAuxDesign}
+
+The DC setpoint is controlled by a low-noise digital-to-analog (DAC) converter.
+This has several advantages: digital control enhances repeatability, and makes it easy to interface with a wide variety of control electronics to, eg, implement a slow infinite integrator [expand on this?]. 
+A wide array of high-resolution DACs are available with very good noise characteristics.
+We initially chose to use an AD5563R, but found that our performance was ultimately limited by $1/f$ noise in the DAC itself.
+The final design uses an XXX, with XXX external reference, such that the noise contribution from the DAC is comparable to the noise contribution from the LM7171 (see Sec.~\ref{Sec:NoiseAnalysis}).
+
+The DAC is controlled by an integrated microcontroller, which also interfaces with the frontpanel control switches, encoders, and LCD display.
+The microcontroller is also attached via the backplane [talk about eurocard rack somewhere?] to a secondary microcontroller which can be addressed over TCP/IP.
+This vastly expands the conceivable control scenarios; for example, in our lab we implement a slow-feedback lock of two ECDL repumping lasers to a wavemeter. 
+LabView code on the computer attached to the wavemeter computes an error signal and corrective control voltage, which can then be passed over our internal network to the piezo driver to correct for frequency drift in the laser.
+Other similar schemes are possible, enabling complete remote control of the laser electronics.
+
+In addition to the digital setpoint control, a voltage proportional to the high voltage output is connected to a GPIO line on the backplane.
+This is fed to a low-noise current controller (based on the design in~\ref{DurfeeFIX}) to implement feed-forward (cite?).
+An optional analog voltage from the backplane can also be summed with the modulation voltage supplied via BNC on the front panel to generate $V_{\text{mod}}$.
+This may be useful, eg, with servo controllers that reside in the same rack as the other control electronics.
+
 
 \subsection{Noise Analysis}
 \label{Sec:NoiseAnalysis}
