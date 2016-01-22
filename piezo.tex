@@ -215,11 +215,16 @@ This vastly expands the conceivable control scenarios; for example, in our lab w
 LabView code on the computer attached to the wavemeter computes an error signal and corrective control voltage, which can then be passed over our internal network to the piezo driver to correct for frequency drift in the laser.
 Other similar schemes are possible, enabling complete remote control of the laser electronics.
 
+Control via the frontpanel is provided by a rotary encoder/push button, and a single on/off switch.
+The rotary encoder/push button switch allows interaction with a user-definable menu system.
+For example, this allows the user to quickly switch the piezo driver into ``ramp'' mode to scan a laser over some resonance feature.
+
 In addition to the digital setpoint control, a voltage proportional to the high voltage output is connected to a GPIO line on the backplane.
 This is fed to a low-noise current controller (based on the design in~\ref{DurfeeFIX}) to implement feed-forward (cite?).
 An optional analog voltage from the backplane can also be summed with the modulation voltage supplied via BNC on the front panel to generate $V_{\text{mod}}$.
 This may be useful, eg, with servo controllers that reside in the same rack as the other control electronics.
 
+Finally, the high voltage output is interlocked with a signal on the back plane (which can optionally be over-ridden by placing a jumper onboard); this allows easy integration into existing laboratory interlock schemes.
 
 \subsection{Noise Analysis}
 \label{Sec:NoiseAnalysis}
