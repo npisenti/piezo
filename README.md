@@ -24,6 +24,8 @@ Schematics and board design files can be found at https://github.com/JQIamo/piez
 * Characteristic scope trace/long-term noise (measure w/ keithly)
 * Use SR560 voltage pre-amp
 
+* Add in last pair of caps to gnd
+
 TODO:
 
 * Look at LIGO design

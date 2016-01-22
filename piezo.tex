@@ -15,15 +15,24 @@
 %\\documentclass[aip,rsi,preprint,graphicx]{revtex4-1} % for review purposes
 
 \usepackage{siunitx}
+\DeclareSIUnit{\sqrthz}{\ensuremath{\sqrt{\text{\hertz}}}}
+
 \usepackage{amsmath}
 \usepackage{amsfonts}
 
 \usepackage{graphicx}
+\usepackage{dcolumn}
+\usepackage{multirow}
 %\usepackage{caption}
 %\usepackage{subcaption}
 
 %% Work with illustrator *.ai files...
 \DeclareGraphicsRule{.ai}{pdf}{.ai}{}
+
+
+%% useful macros
+\newcommand{\epar}{~||~} % add impedances in parallel
+
 
 \begin{document}
 
@@ -108,13 +117,12 @@ where now we can make $G_{\text{mod}} \approx 1$.
 Traditionally, laboratory electronics capable of supplying high voltages fall under one of two architectural umbrellas: switching converters, and ``linear'' amplifiers.
 DC-DC converters are efficient and can work at very high voltages, but suffer from switching noise and limited control bandwidths.
 Linear-type devices are typically constructed from a high-voltage operational amplifier (op-amp), powered either from a high voltage linear regulator or more typically from a secondary switching converter.
-While the op-amp provides \SI{100}{\decibel} or more of power-supply noise rejection, a high-voltage op-amp require substantially more power than an equivalent switching circuit.
+While the op-amp provides \SI{100}{\decibel} or more of power-supply noise rejection, a high-voltage op-amp requires substantially more power than an equivalent switching circuit.
 In either case, the output voltage  $V_{\text{out}}$ is typically given by
 \begin{align}
   V_{\text{out}} &= G_p(V_{\text{DC}} + V_{\text{mod}})\, \text{,}
 \end{align}
 where $G_p$ is the piezo amplifier gain, $V_{\text{DC}}$ is a DC setpoint, and $V_{\text{mod}}$ is a modulation input used for closed-loop control.
-
 
 \section{Circuit Design}
 \label{Sec:Circuit}
@@ -123,10 +131,11 @@ The design is based on the newly-available Texas Instruments DRV2700 piezo drive
 \footnote{The identification of commercial products is for information only and does not imply recommendation or endorsement by the National Institute of Standards and Technology.}
 This single-chip integrated circuit (IC) can be operated as a boost converter to drive an on-chip differential amplifier up to \SI{100}{\volt}, or as a flyback converter up to \SI{1}{\kilo\volt}.
 In flyback configuration, the internal-boost switch of the DRV2700 drives a step-up transformer.
-When the switch is closed, current flows through the primary coil of the transformer and induces a corresponding voltage across the secondary coil, which charges a capacitor at the output ($\text{C}_{\text{HV}}$ in Fig.~\ref{Fig:PiezoCircuit}).
-When the switch opens, a negative voltage appears across the secondary coil of the transformer, but a diode prevents the capacitor from discharging.
-One key benefit of this topology is the galvanically isolated output.
-By sensing the output voltage across a resistive divider, we feed back to the floating ground from the flyback converter to remove switching noise and stabilize the high voltage output; see Fig.~\ref{Fig:PiezoCircuit}.
+When the switch closes, current begins to flow through the primary coil of the transformer and induces a corresponding voltage across the secondary coil.
+In this state, the output diode is reverse-biased, and the capacitor ($\text{C}_{\text{HV}}$ in Fig.~\ref{Fig:PiezoCircuit}) holds its charge.
+When the switch opens, the voltage across the secondary coil is inverted, putting the diode into conduction and charging the capacitor.
+%One key benefit of this topology is the galvanically isolated output.
+%By sensing the output voltage across a resistive divider, we feed back to the floating ground from the flyback converter to remove switching noise and stabilize the high voltage output; see Fig.~\ref{Fig:PiezoCircuit}.
 
 \begin{figure*}[t]
 \includegraphics[width=\textwidth]{fig/DRV2700.ai}
@@ -138,7 +147,7 @@ The capacitor linking the floating ground node to the output allows the op-amp t
 \end{figure*}
 
 In isolation, the DRV2700 is not suited for low-noise laboratory instrumentation. 
-The output ripple, even after heavy filtering, can be as high as a few volts, and standard filtering techniques to reduce this noise simultaneously reduces the modulation control bandwidth.
+The output ripple, even after heavy filtering, can be as high as a few volts, and standard filtering techniques to reduce this noise simultaneously reduces the modulation bandwidth of the flyback regulator.
 Even if this were not the case, it remains unlikely that the RMS noise could be brought below $\SI{1}{\milli\volt}$, which is the operating regime we require for certain low-noise applications in the laboratory.
 Despite this drawback, the flyback converter requires very little current to operate and leverages a compact IC to generate very high voltages, making it versatile and easy to deploy in the lab.
 
@@ -188,11 +197,89 @@ After the passive filter ladder connecting the DRV2700 flyback converter the out
 
 The choice of component for resistors $R_1$ and $R_2$ is crucial for the low-noise performance of the system. (cite LIGO paper)
 
+For a detailed noise analysis, see Sec.~\ref{Sec:NoiseAnalysis}.
+
 \subsection{Digital control and auxiliary design features}
 \label{Sec:DigControlAuxDesign}
 
 \subsection{Noise Analysis}
 \label{Sec:NoiseAnalysis}
+
+\begin{figure}[t]
+\includegraphics[width=\columnwidth]{fig/NoiseModel.ai}
+\caption{Noise model. \label{Fig:NoiseModel}}
+\end{figure}
+
+We analyze the noise performance of the circuit according to the model shown in Figure~\ref{Fig:NoiseModel}, where noise spectral densities are calculated at the node HV.
+Here, we consider contributions from the intrinsic op-amp noise, the DAC (injected at the node $V_{\text{DC}}$), Johnson-Nyquist noise of the passive components, and any additional noise injected at the modulation input node $V_{\text{mod}}$.
+We also discuss, given our choice of op-amp, the noise rejection ratio from the DRV2700 flyback regulator.
+
+First, the noise gain ($NG$) for this amplifier configuration is given by
+\begin{align}
+\label{Eq:NG}
+%NG(s) &= 1 + \frac{R_1 \epar C_1}{R_2 \epar \left(R_{\text{mod}} \epar C_{\text{mod}}\right)}
+%NG(s) &= 1 + \frac{R_1~||~C_1}{R_2R_{\text{mod}} C_{\text{mod}}}
+NG(s) &= 1 + \frac{Z_1}{R_2 \epar Z_{\text{mod}}}
+\end{align}
+where we've defined the equivalent impedances $Z_1 = R_1/(1+R_1 C_1 s)$ and $Z_{\text{mod}} = R_{\text{mod}}/(1+R_{\text{mod}} C_{\text{mod}} s)$, and $s = i\omega$ is the frequency in the Laplace domain.
+By design, we've chosen $Z_1 \equiv Z_{\text{mod}}$ such that the signal gain from the node $V_{\text{mod}}$ is unity.
+This reduces Eq.~(\ref{Eq:NG}) to
+\begin{align}
+\label{Eq:RedNG}
+NG(s) &= 2 + \frac{Z_1}{R_2}
+\end{align}
+
+The op-amp noise is parametrized by two noise contributions -- $e_n$, the input voltage noise power spectral density (PSD), and $i_n$, the input current noise PSD. 
+For the LM7171, $e_n = \SI[per-mode=symbol]{14}{\nano\volt\per\sqrthz}$ and $i_n = \SI[per-mode=symbol]{1.5}{\pico\ampere\per\sqrthz}$ at $\SI{10}{\kilo\hertz}$.
+The voltage noise is summed in at the non-inverting input, while the current noise is present at both inputs.
+To convert $i_n$ to an equivalent voltage noise $e_n$, we multiply by the impedances $Z_n$, $Z_p$ seen by the inverting and non-inverting nodes, respectively.
+These are calculated as
+\begin{align}
+\begin{split}
+\label{Eq:ZnZp}
+Z_n &= Z_1 \epar Z_{\text{mod}} \epar  R_2   = \frac{Z_1}{2} \epar R_2 \\
+Z_p &= R_{\text{LP}}  \big|\big|\frac{1}{s~C_{\text{LP}}}
+\end{split}
+\end{align}
+The total noise contribution of the op-amp (referenced to the output) is
+\begin{align}
+\label{Eq:OpAmpNoise}
+e_{n,\text{op-amp}} &= NG(s)\sqrt{e_n^2 + (Z_n i_n)^2 + (Z_p i_n)^2}
+\end{align}
+
+We now calculate the noise contribution of the DAC. 
+The noise signal gain from the node $V_{\text{DC}}$ is given by
+\begin{align}
+\begin{split}
+\label{Eq:Gdc}
+G_{\text{DC}} &= \left(\frac{1}{1+sR_{\text{LP}}C_{\text{LP}}}\right)\left(1+\frac{Z_1}{R_2\epar Z_{\text{mod}}}\right) \\
+&= \left(\frac{1}{1+sR_{\text{LP}}C_{\text{LP}}}\right)NG(s)
+\end{split}
+\end{align}
+Thus, the DAC voltage noise contribution is just $e_{n,\text{DAC}} = G_{\text{DC}} v_{n,\text{DAC}}$. The AD5663 has a white noise floor of \SI[per-mode=symbol]{100}{\nano\volt\per\sqrthz} (\SI{1}{\kilo\hertz} corner frequency).
+For our circuit, this is the dominant noise contribution.
+Each noise source is shown and tabulated in Table~\ref{Tab:noise}.
+
+
+\begin{table}
+\caption{Various noise contributions. -- should we just tabulate RMS?}
+\label{Tab:noise}
+\begin{ruledtabular}
+\centering
+\begin{tabular}{lcc}
+ \multirow{2}{*}{Noise source} & \multicolumn{2}{c}{Voltage PSD (\si[per-mode=symbol]{\nano\volt\per\sqrthz})} \\ \cline{2-3}
+\rule{0pt}{3ex} & (input-referred) & (output-referred) \\ 
+\hline
+$e_n$ (op-amp) & \SI{14} (white); \SI{30} ($1/f$)  & \\
+$i_n$ (op-amp) &    & \\
+DAC &    & \\
+Johnson-Nyquist & & \\ \hline
+\textbf{total} & &
+\end{tabular}
+\end{ruledtabular}
+\end{table}
+
+
 
 \section{Results}
 \label{Sec:Results}
