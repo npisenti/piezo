@@ -132,8 +132,8 @@ where $G_p$ is the piezo amplifier gain, $V_{\text{DC}}$ is a DC setpoint, and $
 \caption{Schematic of the high voltage stabilization.
 The voltage HV is generated using a Texas Instruments DRV2700 high voltage driver in flyback configuration (see Fig.~\ref{Fig:DRV2700}).
 A fast, very high slew-rate op-amp senses the output voltage across $R_1$ and $R_2$, and servos it by modulating the node at ``HV floating gnd''.
-The $V_{\text{DC}}$ gain is set by $\left(1+R_1/R_2\right)$, while the modulation gain is set by $-R_{\text{mod}}/R_{\text{fb}}$.
-The capacitor linking the floating ground node to the output allows the op-amp to remove residual switching noise and stabilize the DC output according to the transfer function given in Eq.~(\ref{Eq:PiezoTransfer}). \label{Fig:PiezoCircuit}}
+The $V_{\text{DC}}$ gain is set by $\left(1+R_1/R_2\right)$, while the modulation gain is set by $-R_{\text{mod}}/R_1$.
+The capacitor linking the floating ground node to the output allows the op-amp to remove residual switching noise and stabilize the DC output according to the transfer function given in Eq.~(\ref{Eq:PiezoTransfer}). -- Add back in second set of shunt caps!\label{Fig:PiezoCircuit}}
 \end{figure*}
 
 The design is based on the newly-available Texas Instruments DRV2700 piezo driver.
@@ -190,16 +190,36 @@ Notes here about expected, measured bandwidth??
 \subsection{Low-noise stabilization}
 \label{Sec:LowNoiseStabilization}
 
-The low-noise stabilization circuitry was added to remove output ripple and residual switching noise, however it serves a dual purpose as a low-gain, high-bandwidth modulation path to the high-voltage output.
-It uses a very high slew-rate (\SI{4100}{\volt\per\micro\second}) op-amp, the LM7171, connected to the filtered ground node of the flyback converter.
-At high frequencies, the output of this op-amp appears directly at the HV node through the capacitor $C_{\text{out}}$.
-Below the corner set by $C_{\text{out}}$, the output of U2 adjusts the floating ground reference of the flyback converter.
+The low-noise stabilization circuit is crucial to the performance of the design, as it is responsible for removing noise at the output of the flyback converter.
+To accomplish this task, a high slew-rate op-amp (Texas Instruments LM7171, \SI{4100}{\volt\per\micro\second}) drives the galvanically isolated ground node of the flyback converter (see U2 in Fig.~\ref{Fig:PiezoCircuit}).
+This op-amp enforces the HV output voltage
+\begin{align}
+\text{V}_\text{HV} &= \left(1 + \frac{R_1}{R_2~||~R_\text{mod}}\right) \text{V}_\text{DC} -
+\left(\frac{R_\text{mod}}{R_1}\right) \text{V}_\text{mod}
+\end{align}
+We choose $R_1, R_\text{mod} = \SI{1}{\mega\ohm}$, $R_2 = \SI{20.5}{\kilo\ohm}$ such that the DC gain is $\approx 50$ and the modulation gain is unity.
+Depending on the application, however, other gain configurations would work equally well provided the non-inverting gain of U2 closely matches the gain of the flyback regulator since they derive from the same control voltage.
+Ultimately, the op-amp U2 sets the operating voltage of the output, while the flyback converter regulates the high voltage difference between $\text{GND}_\text{HV}$ and the output.
+Because the output of the flyback regulator is galvanically isolated, U2 is free to control the $\text{GND}_\text{HV}$ node at ``low'' voltages, which are transferred directly to the high voltage output.
 
-After the passive filter ladder connecting the DRV2700 flyback converter the output,
+
+
+%The low-noise stabilization circuitry was added to remove output ripple and residual switching noise, however it serves a dual purpose as a low-gain, high-bandwidth modulation path to the high-voltage output.
+%It uses a very high slew-rate (\SI{4100}{\volt\per\micro\second}) op-amp, the LM7171, connected to the filtered ground node of the flyback converter.
+%At high frequencies, the output of this op-amp appears directly at the HV node through the capacitor $C_{\text{out}}$.
+%Below the corner set by $C_{\text{out}}$, the output of U2 adjusts the floating ground reference of the flyback converter.
+
+%After the passive filter ladder connecting the DRV2700 flyback converter the output,
 %At high frequencies, this modulation appears directly at the HV node through the capacitors.
 %At quasi-DC frequencies, the flyback regulator adjusts the HV node to keep 
 
-The choice of component for resistors $R_1$ and $R_2$ is crucial for the low-noise performance of the system. (cite LIGO paper)
+The choice of component for resistors $R_1$ and $R_2$ is crucial for the low-noise performance of the system, because this resistive divider is responsible for accurately sensing the high voltage output and noise contributions thus appear directly at the output.
+Resistors are fundamentally limited by Johnson noise, in which thermal fluctuations contribute to a white noise power spectrum given by $\sqrt{k_B T R}$.
+However, resistors also exhibit $1/f$ current noise caused by equilibrium fluctuations of the resistance~\cite{Clarke1974a,Voss1976a}.
+The magnitude of this ``excess noise'' is highly dependent on the resistor composition, and varies from manufacturer to manufacturer.
+Reference~\cite{Seifert2009a} characterized $1/f$ noise in a variety of resistors, and found that the Vishay TNPW \SI{0.1}{\percent}-series resistors showed a noise spectrum almost consistent with Johnson noise down to \SI{1}{\hertz}.
+A previous iteration of this design used Panasonic ERJ-8ENF resistors (1206, \SI{1}{\percent}), and we noticed substantial low-frequency noise correlated with varying strain on the PCB.
+This is consistent with the findings in~\cite{Seifert2009a}, which showed this Panasonic series to exhibit voltage noise two orders of magnitude larger than the TNPW series at \SI{1}{\hertz}.
 
 For a detailed noise analysis, see Sec.~\ref{Sec:NoiseAnalysis}.
 
