@@ -127,16 +127,6 @@ where $G_p$ is the piezo amplifier gain, $V_{\text{DC}}$ is a DC setpoint, and $
 \section{Circuit Design}
 \label{Sec:Circuit}
 
-The design is based on the newly-available Texas Instruments DRV2700 piezo driver.
-\footnote{The identification of commercial products is for information only and does not imply recommendation or endorsement by the National Institute of Standards and Technology.}
-This single-chip integrated circuit (IC) can be operated as a boost converter to drive an on-chip differential amplifier up to \SI{100}{\volt}, or as a flyback converter up to \SI{1}{\kilo\volt}.
-In flyback configuration, the internal-boost switch of the DRV2700 drives a step-up transformer.
-When the switch closes, current begins to flow through the primary coil of the transformer and induces a corresponding voltage across the secondary coil.
-In this state, the output diode is reverse-biased, and the capacitor ($\text{C}_{\text{HV}}$ in Fig.~\ref{Fig:PiezoCircuit}) holds its charge.
-When the switch opens, the voltage across the secondary coil is inverted, putting the diode into conduction and charging the capacitor.
-%One key benefit of this topology is the galvanically isolated output.
-%By sensing the output voltage across a resistive divider, we feed back to the floating ground from the flyback converter to remove switching noise and stabilize the high voltage output; see Fig.~\ref{Fig:PiezoCircuit}.
-
 \begin{figure*}[t]
 \includegraphics[width=\textwidth]{fig/DRV2700.ai}
 \caption{Schematic of the high voltage stabilization.
@@ -146,17 +136,27 @@ The $V_{\text{DC}}$ gain is set by $\left(1+R_1/R_2\right)$, while the modulatio
 The capacitor linking the floating ground node to the output allows the op-amp to remove residual switching noise and stabilize the DC output according to the transfer function given in Eq.~(\ref{Eq:PiezoTransfer}). \label{Fig:PiezoCircuit}}
 \end{figure*}
 
-In isolation, the DRV2700 is not suited for low-noise laboratory instrumentation. 
-The output ripple, even after heavy filtering, can be as high as a few volts, and standard filtering techniques to reduce this noise simultaneously reduces the modulation bandwidth of the flyback regulator.
-Even if this were not the case, it remains unlikely that the RMS noise could be brought below $\SI{1}{\milli\volt}$, which is the operating regime we require for certain low-noise applications in the laboratory.
-Despite this drawback, the flyback converter requires very little current to operate and leverages a compact IC to generate very high voltages, making it versatile and easy to deploy in the lab.
+The design is based on the newly-available Texas Instruments DRV2700 piezo driver.
+\footnote{The identification of commercial products is for information only and does not imply recommendation or endorsement by the National Institute of Standards and Technology.}
+This single-chip integrated circuit (IC) can be operated as a boost converter to drive an on-chip differential amplifier up to \SI{100}{\volt}, or as a flyback converter up to \SI{1}{\kilo\volt}.
+In flyback configuration, the internal-boost switch of the DRV2700 drives a step-up transformer.
+When the switch closes, current begins to flow through the primary coil of the transformer and induces a corresponding voltage across the secondary coil.
+In this state, the output diode is reverse-biased, and the capacitor ($\text{C}_{\text{HV}}$ in Fig.~\ref{Fig:PiezoCircuit}) holds its charge.
+When the switch opens, the voltage across the secondary coil is inverted, putting the diode into conduction and charging the capacitor.
+By changing the rate at which the switch is engaged, the DRV2700 is able to regulate a particular voltage at the output.
 
-The motivation behind our hybrid architecture is twofold.
-First, to make a switching converter useful for low-noise laboratory instrumentation, we need a way to remove the output ripple and residual switching noise.
-Second, we want to take advantage of low-noise op-amps that only work up to tens of volts to provide a unity gain (DC-coupled) feedback path to the high voltage output.
-The architecture shown in Fig.~\ref{Fig:PiezoCircuit} does just this; a low-noise, high-slew rate op-amp ($\mathbf{U2}$) adjusts the floating ground node of the transformer output to cancel switching noise and sum in an offset given by $V_{\text{mod}}$, while the flyback regulator works close to DC to impose the high voltage across the HV - floating ground output.
-We now explain the operation of each sub-block, and draw attention to important design details. 
-The full schematic, including Gerbers, Bill of Materials, and layout design files, can be found on GitHub~\footnote{\protect\url{https://github.com/JQIamo/piezo-compact-high-voltage-driver}}.
+In isolation, the DRV2700 is not suited for low-noise laboratory instrumentation. 
+The output ripple, even after heavy filtering, can be as high as a few volts, and standard filtering techniques to reduce this noise simultaneously reduce the modulation bandwidth of the flyback regulator.
+Even if this were not the case, it remains unlikely that the RMS noise could be brought below $\SI{1}{\milli\volt}$, which is the operating regime we require for certain low-noise applications in the laboratory.
+Despite this drawback, the flyback converter requires very little current to operate and leverages a compact IC to generate high voltages without the need of an auxiliary supply.
+
+The architecture presented in this paper uses an active feedback element (U2, described in Sec.~\ref{Sec:LowNoiseStabilization}) to remove switching noise and residual ripple at the high-voltage output of the flyback regulator.
+Additionally, U2 provides a DC-coupled, unity-gain feedback path to the high voltage node, which can be used for closed-loop servo applications and high-bandwidth modulation.
+This design shows how researchers might leverage the versatility of galvanically isolated switching regulators (such as the DRV2700) in a low-noise laboratory environment. [versatile and easy to deploy in the lab.]
+
+In the next few sections, we provide details on each sub-block of the circuit and draw attention to important design details.
+The full schematic, including Gerbers, bill of materials, and layout design files, can be found on GitHub~\footnote{\protect\url{https://github.com/JQIamo/piezo-compact-high-voltage-driver}}.
+
 
 \subsection{DRV2700 flyback regulator}
 \label{Sec:DRV2700}
@@ -164,7 +164,7 @@ The full schematic, including Gerbers, Bill of Materials, and layout design file
 We based the flyback regulator design off the suggested schematic in the DRV2700 datasheet and evaluation module application note.
 At a basic level, the DRV2700 flyback circuit requires a transformer (ATB3225; 1:10 step-up winding, \SI{7}{\micro\henry} inductance, rated for \SI{0.6}{\ampere}) connected to an output diode and capacitor, and a ``sense'' voltage supplied to the feedback (FB) node of the IC.
 Internally, the DRV2700 boost controller tries to drive the FB node to \SI{1.3}{\volt}.
-The op-amp U1 senses the voltage at node \textit{HV} and \textit{GND}${}_\text{HV}$, and adjusts its output such that
+The op-amp U1 senses the voltage at node HV and $\text{GND}_\text{HV}$, and adjusts its output such that
 \begin{align}
 \label{Eq:U1Output}
 \text{HV} &= G\cdot V_{\text{dc}} + \text{GND}_{\text{HV}}\,,
@@ -177,12 +177,15 @@ The capacitors $C_3$ and $C_4$ are chosen such that $C_3 = \SI{22}{\pico\farad}$
 as suggested by the datasheet.
 This pseudo-differential configuration ensures that, in the equilibrium given by Eq.~(\ref{Eq:U1Output}), the output of U1 is driven to \SI{0}{\volt}; the resistive divider $R_9$ and $R_{10}$ is then chosen such that $R_9/(R_9~||~R_{10}) = \SI{1.3}{\volt}/\SI{5}{\volt} \approx \num{0.26}$.
 
+The galvanically isolated output of the flyback regulator is passed through a four-pole, low-pass RC filter (corner frequency $f_c \approx \SI{3}{\kilo\hertz}$). 
+Additional capacitors on both the HV and $\text{GND}_{\text{HV}}$ resistor networks shunt high frequency noise to ground. 
+The DRV2700 IC, combined with the feedback provided by U1, regulates the voltage difference $(\text{HV}-\text{GND}_{\text{HV}}) = G\cdot V_{\text{dc}}$. The gain $G = 50$ for the design implemented in our lab, allowing a \SI{5}{\volt} DAC to span \SI{0}{\volt} -- \SI{250}{\volt}.
 
+
+Careful attention was paid to the layout...
 
 Notes here about expected, measured bandwidth??
 
-The DRV2700 IC, combined with the the feedback provided by U1, regulates the voltage $(\text{HV}-\text{GND}_{\text{HV}}) = G\cdot V_{\text{dc}}$.
-Careful attention was paid to the layout ...
 
 \subsection{Low-noise stabilization}
 \label{Sec:LowNoiseStabilization}
@@ -309,6 +312,22 @@ Johnson-Nyquist & & \\ \hline
 \label{Sec:Results}
 Noise analysis, bandwidth, (DC) stability, etc.
 
+We characterized the performance of the high-voltage piezo driver with a few different metrics.
+In Fig.~XX, you can see the noise power spectral density.
+This trace was taken on an SRSXXX spectrum analyzer, AC coupled to the high-voltage output with a \SI{0.5}{\hertz} high-pass filter circuit shown in Fig.~XX(b).
+
+\begin{itemize}
+\item $1/f \rightarrow$ white noise corner frequency
+\item white noise spectral density
+\item RMS noise (0.1 - 10 Hz; 10 Hz - 10 kHz, or something similar) -- use SRS voltage preamp?
+\item How effective is the LM7171 at reducing switching noise? look at FFT power before final filter resistor, and at output of op amp (dBc spec)
+\item compare noise to predicted values
+\item longterm trace on kiethly -- across voltage divider at output? Monitor vs temperature? -- need to find low Tc resistors, at least.
+\item see what dependence is on power source -- eg, JQI power supply vs lab supply vs very quiet voltage regulator?
+\item current draw -- display in some ``bottom line'' specs table?
+\item bandwidth measurements -- full scale triangle ramp, small signal bandwidth -- discuss limitations on this (eg, also versus different piezo loads)
+\item Lock a laser, show RMS noise fluct vs. old piezo?
+\end{itemize}
 
 \section{Conclusion}
 \label{Sec:Conclusion}
