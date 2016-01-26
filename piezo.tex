@@ -92,37 +92,20 @@ Avalanche photodiodes require a low-noise reverse bias of a few hundred volts or
 Other applications...? biophysics? medical devices?
 
 Often, these applications are operated in a closed feedback loop, where small voltage changes on top of a large DC voltage are necessary to stabilize the output of a particular system.
-For example, extended-cavity diode lasers adjust their lasing frequency by changing the angle of a diffraction grating that supplies optical feedback to the diode.
-To stabilize this frequency, a servo controller measures deviations from the desired value and adjusts the voltage controlling the grating angle to correct for any difference.
-Because the servo electronics operate at low voltage, a secondary high-voltage (HV) amplifier is required to drive the piezoelectric actuator.
-This HV gain stage typically accepts an external ``modulation input'', $V_{\text{mod}}$, and produces an amplified voltage $V_{\text{out}}$ according to
-\begin{align}
-V_{\text{out}} = G_p V_{\text{mod}} + V_0
-\end{align}
-where $G_p$ is the amplifier gain and $V_0$ is an optional DC offset.
-Typically, {$G_p\approx \num{10} - \num{20}$} or more such that reasonable voltages $V_{\text{mod}}$ can span the entire output range $V_{\text{out}}$.
-
-It is often the case, however, that in closed-loop feedback applications we do not need and often do not want the modulation control to have a high gain.
-Because the closed loop gain $G \equiv G_s G_p$ cannot be increased without limit, $G_p \gg 1$ means the servo gain $G_s$ must be proportionally smaller to keep the lock stable.
-In locked configuration, any noise introduced by the servo is suppressed by $1/|G_s|$ in the large gain limit.
-If $G_s$ is limited to achieve a stable lock, it is no longer effective at servoing its own noise.
-
-To avoid this problem, we desire a high voltage amplifier which separates the ``setpoint'' gain, $G_{\text{dc}}$, from the modulation gain, $G_{\text{mod}}$. That is,
-\begin{align}
-  V_{\text{out}} &= G_{\text{dc}} V_{\text{dc}} + G_{\text{mod}} V_{\text{mod}}\, \text{,}
-  \label{Eq:PiezoTransfer}
-\end{align}
-where now we can make $G_{\text{mod}} \approx 1$.
+For example, extended-cavity diode lasers adjust their lasing frequency by changing the angle of a piezo-actuated diffraction grating that supplies optical feedback to the diode.
+High-voltage piezoelectric drivers typically provide a ``modulation input'' for  such closed-loop applications, where the input voltage is either DC coupled and gained such that the input range spans the entire output range of the driver, or AC coupled directly to the output.
+While this may have certain advantages, many applications would benefit from an architecture that provides a unity gain, DC-coupled feedback path to the high voltage output -- such a device would make closed-loop piezoelectric systems less susceptible to noise contributions from the servo controller.
+Indeed, in our laboratory, we often find this to be the limiting factor in the stability of our laser frequency locks.
 
 Traditionally, laboratory electronics capable of supplying high voltages fall under one of two architectural umbrellas: switching converters, and ``linear'' amplifiers.
 DC-DC converters are efficient and can work at very high voltages, but suffer from switching noise and limited control bandwidths.
 Linear-type devices are typically constructed from a high-voltage operational amplifier (op-amp), powered either from a high voltage linear regulator or more typically from a secondary switching converter.
-While the op-amp provides \SI{100}{\decibel} or more of power-supply noise rejection, a high-voltage op-amp requires substantially more power than an equivalent switching circuit.
-In either case, the output voltage  $V_{\text{out}}$ is typically given by
-\begin{align}
-  V_{\text{out}} &= G_p(V_{\text{DC}} + V_{\text{mod}})\, \text{,}
-\end{align}
-where $G_p$ is the piezo amplifier gain, $V_{\text{DC}}$ is a DC setpoint, and $V_{\text{mod}}$ is a modulation input used for closed-loop control.
+While the op-amp provides \SI{100}{\decibel} or more of power-supply noise rejection, a high-voltage op-amp requires substantially more power than an equivalent switching circuit and is thus more cumbersome to deploy in the laboratory.
+
+Here, we present an architecture which combines the best of both worlds: a high-voltage piezoelectric driver with excellent noise characteristics that can be powered from a standard low-current, low-voltage supply.
+The DC operating point is controlled digitally, and an analog input provides a DC-coupled, unity-gain feedback path ($\pm\SI{10}{\volt}$) to the output.
+The following design is versatile and easy to deploy throughout the lab in a variety of high-voltage applications.
+
 
 \section{Circuit Design}
 \label{Sec:Circuit}
@@ -136,8 +119,7 @@ The $V_{\text{DC}}$ gain is set by $\left(1+R_1/R_2\right)$, while the modulatio
 The capacitor linking the floating ground node to the output allows the op-amp to remove residual switching noise and stabilize the DC output according to the transfer function given in Eq.~(\ref{Eq:PiezoTransfer}). -- Add back in second set of shunt caps!\label{Fig:PiezoCircuit}}
 \end{figure*}
 
-The design is based on the newly-available Texas Instruments DRV2700 piezo driver.
-\footnote{The identification of commercial products is for information only and does not imply recommendation or endorsement by the National Institute of Standards and Technology.}
+The design is based on the newly-available Texas Instruments DRV2700 piezo driver\footnote{The identification of commercial products is for information only and does not imply recommendation or endorsement by the National Institute of Standards and Technology.}, however it is easily modified to work with any galvanically isolated DC-DC converter.
 This single-chip integrated circuit (IC) can be operated as a boost converter to drive an on-chip differential amplifier up to \SI{100}{\volt}, or as a flyback converter up to \SI{1}{\kilo\volt}.
 In flyback configuration, the internal-boost switch of the DRV2700 drives a step-up transformer.
 When the switch closes, current begins to flow through the primary coil of the transformer and induces a corresponding voltage across the secondary coil.
@@ -347,6 +329,7 @@ This trace was taken on an SRSXXX spectrum analyzer, AC coupled to the high-volt
 \item current draw -- display in some ``bottom line'' specs table?
 \item bandwidth measurements -- full scale triangle ramp, small signal bandwidth -- discuss limitations on this (eg, also versus different piezo loads)
 \item Lock a laser, show RMS noise fluct vs. old piezo?
+\item compare to SC100 toptica controller? even if just internally.
 \end{itemize}
 
 \section{Conclusion}
