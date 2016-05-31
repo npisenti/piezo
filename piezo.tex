@@ -5,9 +5,9 @@
 %%   Version 4.1 of 9 October 2009.
 %%
 %
-% This is a template for producing documents for use with 
+% This is a template for producing documents for use with
 % the REVTEX 4.1 document class and the RSI substyle.
-% 
+%
 % Copy this file to another name and then work on that file.
 % That way, you always have this original template file to use.
 \documentclass[aip,rsi,reprint]{revtex4-1} % for checking your page length
@@ -36,7 +36,7 @@
 
 \begin{document}
 
-% Use the \preprint command to place your local institutional report number 
+% Use the \preprint command to place your local institutional report number
 % on the title page in preprint mode.
 % Multiple \preprint commands are allowed.
 %\preprint{}
@@ -45,11 +45,11 @@
 
 % repeat the \author .. \affiliation  etc. as needed
 % \email, \thanks, \homepage, \altaffiliation all apply to the current author.
-% Explanatory text should go in the []'s, 
+% Explanatory text should go in the []'s,
 % actual e-mail address or url should go in the {}'s for \email and \homepage.
 % Please use the appropriate macro for the type of information
 
-% \affiliation command applies to all authors since the last \affiliation command. 
+% \affiliation command applies to all authors since the last \affiliation command.
 % The \affiliation command should follow the other information.
 
 \author{N.C. Pisenti}
@@ -63,7 +63,7 @@
 %\altaffiliation{}
 \affiliation{Joint Quantum Institute, University of Maryland and National Institute of Standards and Technology}
 
-% Collaboration name, if desired (requires use of superscriptaddress option in \documentclass). 
+% Collaboration name, if desired (requires use of superscriptaddress option in \documentclass).
 % \noaffiliation is required (may also be used with the \author command).
 %\collaboration{}
 %\noaffiliation
@@ -81,7 +81,7 @@ A low-voltage (\SI{\pm 10}{\volt}), high bandwidth modulation input is capable o
 
 \maketitle %\maketitle must follow title, authors, abstract and \pacs
 
-% Body of paper goes here. Use proper sectioning commands. 
+% Body of paper goes here. Use proper sectioning commands.
 % References should be done using the \cite and \label commands
 \section{Introduction}
 \label{Sec:Introduction}
@@ -149,7 +149,7 @@ The op-amp U1 senses the voltage at node HV and $\text{GND}_\text{HV}$, and adju
 \text{HV} - \text{GND}_{\text{HV}} &= G\cdot V_{\text{dc}}\,,
 \end{align}
 where the gain $G$ is set by the resistor ratio $R_3/R_4 \equiv R_5/R_6$.
-The capacitors $C_3$ and $C_4$ are chosen such that $C_3 = \SI{22}{\pico\farad}$ and 
+The capacitors $C_3$ and $C_4$ are chosen such that $C_3 = \SI{22}{\pico\farad}$ and
 \begin{align}
 \frac{C_4}{C_3} &= \frac{R_3}{R_4~||~R_5}\,,
 \end{align}
@@ -171,7 +171,7 @@ Notes here about expected, measured bandwidth??
 \label{Sec:LowNoiseStabilization}
 
 The low-noise stabilization circuit is crucial to the performance of the design, as it is responsible for removing noise at the output of the flyback converter.
-To accomplish this task, a high slew-rate op-amp (Texas Instruments LM7171, \SI{4100}{\volt\per\micro\second}) drives the galvanically isolated ground node of the flyback converter (see U2 in Fig.~\ref{Fig:PiezoCircuit}).
+To accomplish this task, a high slew-rate op-amp (Texas Instruments LM7171, \SI[per-mode=symbol]{4100}{\volt\per\micro\second}) drives the galvanically isolated ground node of the flyback converter (see U2 in Fig.~\ref{Fig:PiezoCircuit}).
 This op-amp enforces the HV output voltage
 \begin{align}
 \text{V}_\text{HV} &= \left(1 + \frac{R_1}{R_2~||~R_\text{mod}}\right) \text{V}_\text{DC} -
@@ -191,7 +191,7 @@ Because the output of the flyback regulator is galvanically isolated, U2 is free
 
 %After the passive filter ladder connecting the DRV2700 flyback converter the output,
 %At high frequencies, this modulation appears directly at the HV node through the capacitors.
-%At quasi-DC frequencies, the flyback regulator adjusts the HV node to keep 
+%At quasi-DC frequencies, the flyback regulator adjusts the HV node to keep
 
 The choice of component for resistors $R_1$ and $R_2$ is crucial for the low-noise performance of the system, because this resistive divider is responsible for accurately sensing the high voltage output and noise contributions thus appear directly at the output.
 Resistors are fundamentally limited by Johnson noise, in which thermal fluctuations contribute to a white noise power spectrum given by $\sqrt{k_B T R}$.
@@ -207,14 +207,14 @@ For a detailed noise analysis, see Sec.~\ref{Sec:NoiseAnalysis}.
 \label{Sec:DigControlAuxDesign}
 
 The DC setpoint is controlled by a low-noise digital-to-analog (DAC) converter.
-This has several advantages: digital control enhances setpoint repeatability, and makes it easy to interface with a wide variety of control electronics to, eg, implement a slow infinite integrator [expand on this?]. 
+This has several advantages: digital control enhances setpoint repeatability, and makes it easy to interface with a wide variety of control electronics to, eg, implement a slow infinite integrator [expand on this?].
 A wide array of high-resolution DACs are available with very good noise characteristics.
 We initially chose to use an AD5563R, but found that our performance was ultimately limited by $1/f$ noise in the DAC itself.
 The final design uses an XXX, with XXX external reference, such that the noise contribution from the DAC is comparable to the noise contribution from the LM7171 (see Sec.~\ref{Sec:NoiseAnalysis}).
 
 The DAC is controlled by an integrated microcontroller, which also interfaces with the frontpanel control switches, encoders, and LCD display.
 The microcontroller is also attached via the backplane [talk about eurocard rack somewhere?] to a secondary microcontroller which can be addressed over TCP/IP.
-This vastly expands the conceivable control scenarios; for example, in our lab we implement a slow-feedback lock of two ECDL repumping lasers to a wavemeter. 
+This vastly expands the conceivable control scenarios; for example, in our lab we implement a slow-feedback lock of two ECDL repumping lasers to a wavemeter.
 LabView code on the computer attached to the wavemeter computes an error signal and corrective control voltage, which can then be passed over our internal network to the piezo driver to correct for frequency drift in the laser.
 Other similar schemes are possible, enabling complete remote control of the laser electronics.
 
@@ -236,28 +236,31 @@ Finally, the high voltage output is interlocked with a signal on the back plane 
 \includegraphics[width=\columnwidth]{fig/NoiseModel.ai}
 \caption{Noise model. \label{Fig:NoiseModel}}
 \end{figure}
+\begin{figure}[t]
+\includegraphics[width=\columnwidth]{calc/NoiseContrib.pdf}
+\caption{Noise Contributions (color online).  Plotted are the noise contributions from each source in our model -- op-amp current noise (dashed orange) and voltage noise (dotted blue); Johnson noise (dash-dotted green), DAC noise (long dashed red), and total noise (solid purple). Power spectral density is referred to the high voltage output.\label{Fig:NoisePlot}}
+\end{figure}
 
-We analyze the noise performance of the circuit according to the model shown in Figure~\ref{Fig:NoiseModel}, where noise spectral densities are calculated at the node HV.
-Here, we consider contributions from the intrinsic op-amp noise, the DAC (injected at the node $V_{\text{DC}}$), Johnson-Nyquist noise of the passive components, and any additional noise injected at the modulation input node $V_{\text{mod}}$.
-We also discuss, given our choice of op-amp, the noise rejection ratio from the DRV2700 flyback regulator.
+We analyze the noise performance of the circuit according to the model shown in Fig.~\ref{Fig:NoiseModel}, where noise spectral densities are calculated at the node HV.
+A summary of each noise contribution (op-amp, DAC, Johnson-Nyquist, external modulation input) is shown in Table~\ref{Tab:noise}, along with the cumulative root-mean-square (RMS) nose estimates in different frequency bands.
+% We also discuss, given our choice of op-amp, the noise rejection ratio from the DRV2700 flyback regulator.
+% -- not sure about how to do this... could just report the measured value:
 
-First, the noise gain ($NG$) for this amplifier configuration is given by
+To treat the intrinsic op-amp noise contributions, we first compute the noise gain ($NG$) for this amplifier configuration according to
 \begin{align}
 \label{Eq:NG}
-%NG(s) &= 1 + \frac{R_1 \epar C_1}{R_2 \epar \left(R_{\text{mod}} \epar C_{\text{mod}}\right)}
-%NG(s) &= 1 + \frac{R_1~||~C_1}{R_2R_{\text{mod}} C_{\text{mod}}}
-NG(s) &= 1 + \frac{Z_1}{R_2 \epar Z_{\text{mod}}}
+NG(s) &= 1 + \frac{Z_1}{R_2 \epar Z_{\text{mod}}}\,,
 \end{align}
 where we've defined the equivalent impedances $Z_1 = R_1/(1+R_1 C_1 s)$ and $Z_{\text{mod}} = R_{\text{mod}}/(1+R_{\text{mod}} C_{\text{mod}} s)$, and $s = i\omega$ is the frequency in the Laplace domain.
 By design, we've chosen $Z_1 \equiv Z_{\text{mod}}$ such that the signal gain from the node $V_{\text{mod}}$ is unity.
 This reduces Eq.~(\ref{Eq:NG}) to
 \begin{align}
 \label{Eq:RedNG}
-NG(s) &= 2 + \frac{Z_1}{R_2}
+NG(s) &= 2 + \frac{Z_1}{R_2}\,.
 \end{align}
 
-The op-amp noise is parametrized by two noise contributions -- $e_n$, the input voltage noise power spectral density (PSD), and $i_n$, the input current noise PSD. 
-For the LM7171, $e_n = \SI[per-mode=symbol]{14}{\nano\volt\per\sqrthz}$ and $i_n = \SI[per-mode=symbol]{1.5}{\pico\ampere\per\sqrthz}$ at $\SI{10}{\kilo\hertz}$.
+The op-amp noise is parametrized by two noise contributions -- $e_n$, the input voltage noise power spectral density (PSD), and $i_n$, the input current noise PSD.
+For the LM7171, $e_n = \SI[per-mode=symbol]{14}{\nano\volt\per\sqrthz}$ and $i_n = \SI[per-mode=symbol]{1.5}{\pico\ampere\per\sqrthz}$ at $\SI{10}{\kilo\hertz}$, with a $1/f$ noise character below this frequency~\cite{LM7171Datasheet}.
 The voltage noise is summed in at the non-inverting input, while the current noise is present at both inputs.
 To convert $i_n$ to an equivalent voltage noise $e_n$, we multiply by the impedances $Z_n$, $Z_p$ seen by the inverting and non-inverting nodes, respectively.
 These are calculated as
@@ -274,7 +277,7 @@ The total noise contribution of the op-amp (referenced to the output) is
 e_{n,\text{op-amp}} &= NG(s)\sqrt{e_n^2 + (Z_n i_n)^2 + (Z_p i_n)^2}
 \end{align}
 
-We now calculate the noise contribution of the DAC. 
+We now calculate the noise contribution of the DAC.
 The noise signal gain from the node $V_{\text{DC}}$ is given by
 \begin{align}
 \begin{split}
@@ -295,7 +298,7 @@ Each noise source is shown and tabulated in Table~\ref{Tab:noise}.
 \centering
 \begin{tabular}{lcc}
  \multirow{2}{*}{Noise source} & \multicolumn{2}{c}{Voltage PSD (\si[per-mode=symbol]{\nano\volt\per\sqrthz})} \\ \cline{2-3}
-\rule{0pt}{3ex} & (input-referred) & (output-referred) \\ 
+\rule{0pt}{3ex} & (input-referred) & (output-referred) \\
 \hline
 $e_n$ (op-amp) & \SI{14} (white); \SI{30} ($1/f$)  & \\
 $i_n$ (op-amp) &    & \\
@@ -334,18 +337,18 @@ This trace was taken on an SRSXXX spectrum analyzer, AC coupled to the high-volt
 \label{Sec:Conclusion}
 
 
-% If in two-column mode, this environment will change to single-column format so that long equations can be displayed. 
+% If in two-column mode, this environment will change to single-column format so that long equations can be displayed.
 % Use only when necessary.
 %\begin{widetext}
 %$$\mbox{put long equation here}$$
 %\end{widetext}
 
-% Figures should be put into the text as floats. 
+% Figures should be put into the text as floats.
 % Use the graphics or graphicx packages (distributed with LaTeX2e). EPSFig is no longer fully supported.
-% See the LaTeX Graphics Companion by Michel Goosens, Sebastian Rahtz, and Frank Mittelbach for examples. 
+% See the LaTeX Graphics Companion by Michel Goosens, Sebastian Rahtz, and Frank Mittelbach for examples.
 %
 % Here is an example of the general form of a figure:
-% Fill in the caption in the braces of the \caption{} command. 
+% Fill in the caption in the braces of the \caption{} command.
 % Put the label that you will use with \ref{} command in the braces of the \label{} command.
 %
 % \begin{figure}
