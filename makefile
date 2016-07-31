@@ -14,5 +14,5 @@ quick: piezo.tex
 
 piezo.pdf: piezo.tex
 	mkdir -p build
-	latexmk -pdf -pdflatex="pdflatex -interaction=nonstopmode -file-line-error" -use-make -jobname=build/piezo piezo.tex
+	latexmk -f -pdf -pdflatex="pdflatex -interaction=nonstopmode -file-line-error" -use-make -jobname=build/piezo piezo.tex
 	cp build/piezo.pdf .

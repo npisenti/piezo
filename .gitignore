@@ -1,4 +1,5 @@
 build/
+calc/.ipynb_checkpoints/
 
 
 ## From github TeX.gitignore
@@ -27,6 +28,7 @@ build/
 *-blx.bib
 *.brf
 *.run.xml
+*.bib.bak
 
 ## Build tool auxiliary files:
 *.fdb_latexmk
