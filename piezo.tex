@@ -37,6 +37,7 @@
 
 %% ugh, should find better solution to this. ADS returns \prb, not recognized by revtex style...
 \newcommand{\prb}{Phys. Rev. B}
+\newcommand{\iu}{\mathrm{i}\mkern1mu}
 
 \begin{document}
 
@@ -53,11 +54,12 @@
 \date{\today}
 
 \begin{abstract}
-We present an ultra-low noise, high voltage driver suited for use with piezoelectric actuators and other low-current applications. 
+We present an ultra-low noise, high-voltage driver suited for use with piezoelectric actuators and other low-current applications. 
 The architecture uses a flyback switching regulator to generate up to 250V in our current design, with an output of \SI{1}{\kilo\volt} or more possible with small modifications. 
 A high slew-rate op-amp suppresses the residual switching noise, yielding a total RMS noise of $\approx\SI{100}{\micro\volt}$ (\SI{1}{\hertz}--\SI{100}{\kilo\hertz}).
 A low-voltage (\SI{\pm 10}{\volt}), high bandwidth signal can be summed with unity gain directly onto the output, making the driver well-suited for closed-loop feedback applications.
-Digital control enables repeatable setpoints or sophisticated control logic, and the circuit consumes less than \SI{150}{\milli\ampere} at $\pm\SI{15}{\volt}$.
+Digital control enables both repeatable setpoints and sophisticated control logic. 
+The circuit consumes less than \SI{150}{\milli\ampere} at $\pm\SI{15}{\volt}$.
 \end{abstract}
 
 \pacs{}% insert suggested PACS numbers in braces on next line
@@ -68,18 +70,19 @@ Digital control enables repeatable setpoints or sophisticated control logic, and
 \label{Sec:Introduction}
 
 Many instrumentation applications in the modern laboratory require agile, low-noise voltage sources capable of supplying hundreds of volts or more.
-For example, piezo-actuated mirrors and diffraction gratings play an important role in atomic physics experiments (used, e.g., in Fabry-Per{\`o}t cavities\cite{Riedle1994a,Bohlouli-Zanjani2006a} and extended-cavity diode lasers\cite{Wieman1991a}), while avalanche photodiodes and photomultiplier tubes require large bias voltages for proper operation.
-In the realm of biophysics, electrokinetic separation methods such as free-flow or capillary electrophoresis\cite{Kohlheyer2008a} require large electric field gradients, and the recent push to develop lab-on-a-chip devices could benefit from miniaturized high voltage sources\cite{Temiz2015a}.
+For example, piezo-actuated mirrors and diffraction gratings play an important role in atomic physics experiments (used, e.g., in Fabry-Per{\`o}t cavities\cite{Riedle1994a,Bohlouli-Zanjani2006a} and external-cavity diode lasers\cite{Wieman1991a}), while avalanche photodiodes and photomultiplier tubes require large bias voltages for proper operation.
+In the realm of biophysics, electrokinetic separation methods such as free-flow or capillary electrophoresis\cite{Kohlheyer2008a} require large electric field gradients.
+In addition, the recent push to develop lab-on-a-chip devices could benefit from miniaturized high-voltage sources.\cite{Temiz2015a}
 
 Laboratory devices are often operated in a closed feedback loop, where small voltage changes on top of a large DC voltage are necessary to stabilize the output of a particular system.
 For example, the frequency of an extended-cavity diode laser can be locked by feeding back to a piezo-actuated diffraction grating or mirror, which in turn supplies optical feedback to the diode.
-Commercially available piezoelectric drivers typically provide a modulation input for  such closed-loop applications, but the input voltage is gained such that it spans the entire output range of the device.
-While this has certain advantages, many applications would benefit from an architecture that provides a unity gain, DC-coupled feedback path to the high voltage output. 
+Commercially available piezoelectric drivers typically provide a modulation input for  such closed-loop applications, but  the input voltage is often gained such that it spans the entire output range of the device.
+While this has certain advantages, many applications would benefit from an architecture that provides a unity gain, DC-coupled feedback path to the high-voltage output. 
 Such a device could make closed-loop systems less susceptible to noise contributions from the servo controller, which we often find in our laboratory to be the limiting factor in laser lock stability.
 
 Instrumentation electronics capable of supplying high voltages traditionally fall under one of two architectural umbrellas: DC-DC switching converters, and linear-type amplifiers.
 While DC-DC converters are efficient and can work at very high voltages, they suffer from switching noise and limited control bandwidths.
-Linear-type devices are typically constructed from a high-voltage operational amplifier (op-amp), powered either from a high voltage linear regulator or more typically from a secondary switching converter.
+Linear-type devices are typically constructed from a high-voltage operational amplifier (op-amp), powered either from a high-voltage linear regulator or more typically from a secondary switching converter.
 While the op-amp provides \SI{100}{\decibel} or more of power-supply noise rejection, high-voltage op-amps require substantially more power than an equivalent switching circuit and are more cumbersome to deploy in the laboratory.
 
 We present a circuit with a hybrid architecture.
@@ -87,38 +90,40 @@ The high voltage is generated by a galvanically isolated DC-DC converter (descri
 This architecture is able to achieve extremely low noise performance ($\approx\SI{100}{\micro\volt}_{\text{RMS}}$) over the entire output range, draws very little current, and fits comfortably onto a small-footprint PCB.
 Additionally, the high-voltage output remains single-ended and referenced to ground, allowing it to drive piezo actuators with a grounded terminal.
 We present a noise analysis of our circuit in Sec.~\ref{Sec:NoiseAnalysis}, and show characteristic performance data in Sec.~\ref{Sec:Results}.
-Complete design files, including the schematic, bill of materials, and board layout, can be found on Github\cite{PiezoDesignFiles}.
+Complete design files, including the schematic, bill of materials, and board layout, can be found on Github.\cite{PiezoDesignFiles}
 The board manufacture and component cost is less than \SI{200}[\$]{}, making it a cost-effective alternative to commercial options. 
 
 \section{Circuit Design}
 \label{Sec:Circuit}
 
 \begin{figure*}[t]
-\includegraphics[width=\textwidth]{fig/DRV2700.ai}
+\includegraphics[width=\textwidth]{fig/Schematic.ai}
 \caption{Schematic of the high voltage supply and stabilization.
 The voltage $\text{V}_\text{HV}$ is generated using a Texas Instruments DRV2700 high voltage driver in flyback configuration.
-A high slew-rate op-amp (U2) senses the output voltage across $R_1$ and $R_2$, and servos it by modulating the mid-ground node $\text{V}_\text{MG}$.
-The DC control signal for this op-amp,  $\text{V}_{\text{ctl}}$, is supplied by a digital-to-analog (DAC) converter, which is passed through a switchable low-pass filter. This allows for very heavy filtering of the DAC $1/f$ noise during steady-state operation, but the corner frequency can be increased if the output needs to be scanned more quickly.
+A high slew-rate op-amp (U2) senses the output voltage across $R_1$ and $R_2$, and controls it by modulating the mid-ground node $\text{V}_\text{MG}$.
+The DC control signal for this op-amp,  $\text{V}_{\text{ctl}}$, is supplied by a digital-to-analog (DAC) converter, which is passed through a switchable low-pass filter. 
+This design allows for very heavy filtering of the DAC $1/f$ noise during steady-state operation, but the corner frequency can be increased if the output needs to be scanned more quickly.
 The $\text{V}_{\text{ctl}}$ gain is set by $\left(1+R_1/R_2\right)$, while the modulation gain is set by $-R_1/R_\text{mod}$.
-The capacitor linking the floating ground node to the output allows the op-amp to remove residual switching noise and stabilize the DC output according to the transfer function given in Eq.~(\ref{Eq:FullTransferFunc}).
-Op-amps U1 and U2 are powered at $\pm\SI{15}{\volt}$ (not shown).
+The op-amp U2 removes residual switching noise and stabilizes the DC output according to the transfer function given in Eq.~(\ref{Eq:FullTransferFunc}).
+A MOSFET quench circuit, shown in Fig.~\ref{Fig:MOS}, connects at nodes $\text{V}_\text{out}$ and $\text{V}_\text{MG}$.
+%Op-amps U1 and U2 are powered at $\pm\SI{15}{\volt}$ (not shown).
 \label{Fig:PiezoCircuit}}
 \end{figure*}
 
-The design principles discussed below show how we leverage the versatility of galvanically isolated switching regulators in a low-noise laboratory environment. 
-Our design targets a \SI{250}{\volt} output, but straightforward modifications to the schematic (discussed below) make it possible to tailor the gain and output range to a specific application.
-The entire electronics package fits comfortably into a 12HP eurocard rack module (with the high voltage section taking only a fraction of the PCB), and draws less than \SI{150}{\milli\ampere} at \SI{15}{\volt}.
+
+The design principles discussed below show how we leverage the characteristics of a galvanically-isolated switching regulator without sacrificing the low-noise requirements of many laboratory applications.
+Our design targets a \SI{250}{\volt} output, but we discuss straightforward modifications to the schematic that make it possible to tailor the gain and output range to a specific application.
+The entire electronics package fits comfortably into a compact eurocard rack module (with the high-voltage section taking only a fraction of the PCB), and draws less than \SI{150}{\milli\ampere} at \SI{15}{\volt}.
 %The full schematic, including Gerbers, a bill of materials, and layout design files, can be found on GitHub.~\footnote{\protect\url{https://github.com/JQIamo/hv-piezo-driver}}
 
-Fig.~\ref{Fig:PiezoCircuit} shows the schematic overview. 
+Fig.~\ref{Fig:PiezoCircuit} shows an overview of the circuit schematic. 
 A digital-to-analog converter (DAC) generates a voltage setpoint, $\text{V}_\text{ctl}$, which is sent to the high-voltage flyback regulator and to the low-noise stabilization circuit.
-The flyback regulator (Sec.~\ref{Sec:DRV2700}) controls the potential between circuit nodes $\text{V}_\text{HV}$ and $\text{V}_\text{FG}$, while the low-noise stabilization circuitry (Sec.~\ref{Sec:LowNoiseStabilization}) servos the output node $\text{V}_\text{out}$ relative to the true circuit ground.
+The flyback regulator (Sec.~\ref{Sec:DRV2700}) controls the potential between circuit nodes $\text{V}_\text{HV}$ and $\text{V}_\text{FG}$, while the low-noise stabilization circuitry (Sec.~\ref{Sec:LowNoiseStabilization}) controls the output node $\text{V}_\text{out}$ relative to the true circuit ground.
 The DAC is controlled by an integrated microcontroller, and can be programmed to output slow ($\approx\SI{10}{\hertz}$) rail-to-rail voltage ramps in addition to setting the DC operating point (Sec.~\ref{Sec:SlowModulationMOS}).
-To improve the large-voltage slew rate, a MOSFET ``quench'' circuit (Fig.~\ref{Fig:MOS}) is included to shorten the $RC$ time constant of the high voltage node $\text{V}_\text{HV}$ when needed.
-A switchable-corner, low-pass filter can be engaged during DC operation to reduce $1/f$ noise from the DAC (discussed in Sec.~\ref{Sec:NoiseAnalysis}), and
-%Because $1/f$ voltage noise in the DAC contributes heavily to the output noise, a low-pass filter can be engaged during DC operation to mitigate this output noise (discussed in Sec.~\ref{Sec:NoiseAnalysis}).
-fast output modulation between $\pm\SI{10}{\volt}$ can be achieved through the input node $\text{V}_\text{mod}$.
-This node is DC-coupled to the high voltage output, and is useful for closed-loop feedback control.
+To improve the large-amplitude slew rate, a MOSFET ``quench'' circuit (Fig.~\ref{Fig:MOS}) is included to reduce the $RC$ time constant of the high-voltage node $\text{V}_\text{out}$ when needed.
+A low-pass filter with a switchable corner frequency can be engaged during DC operation to reduce $1/f$ noise from the DAC (discussed in Sec.~\ref{Sec:NoiseAnalysis}).
+Fast output modulation between $\pm\SI{10}{\volt}$ can be achieved through the input node $\text{V}_\text{mod}$.
+This node is DC-coupled to the high-voltage output, and is useful for closed-loop feedback control.
 
 
 
@@ -126,11 +131,11 @@ This node is DC-coupled to the high voltage output, and is useful for closed-loo
 \subsection{Flyback regulator}
 \label{Sec:DRV2700}
 
-The high voltage DC-DC converter used here is based on the Texas Instruments DRV2700 piezo driver\footnote{The identification of commercial products in this paper is for information only and does not imply recommendation or endorsement by the National Institute of Standards and Technology.}.
-This single-chip integrated circuit can be operated as a boost converter to drive an on-chip differential amplifier up to \SI{100}{\volt}, or as a flyback converter up to \SI{1}{\kilo\volt} or more.
+The high-voltage DC-DC converter used here is based on the Texas Instruments DRV2700 piezo driver.\footnote{The identification of commercial products in this paper is for information only and does not imply recommendation or endorsement by the National Institute of Standards and Technology.}
+This integrated circuit can be operated as a boost converter to drive an on-chip differential amplifier up to \SI{100}{\volt}, or as a flyback converter up to \SI{1}{\kilo\volt} or more.
 In flyback configuration, the internal-boost switch of the DRV2700 (pin SW in Fig.~\ref{Fig:PiezoCircuit}) drives a step-up transformer.
-When the switch closes, current begins to flow through the primary coil of the transformer and induces a corresponding voltage across the secondary coil.
-In this state, the output diode is reverse-biased, and the capacitor ($\text{C}_{\text{HV}}$ in Fig.~\ref{Fig:PiezoCircuit}) holds its charge.
+When the switch closes to ground, current begins to flow through the primary coil of the transformer and induces a corresponding voltage across the secondary coil.
+In this state, the output diode D1 is reverse-biased, and the capacitor ($\text{C}_{\text{HV}}$ in Fig.~\ref{Fig:PiezoCircuit}) holds its charge.
 When the switch opens, the voltage across the secondary coil is inverted, putting the diode into conduction and charging the capacitor.
 By changing the switching duty cycle, the DRV2700 is able to regulate the voltage across the galvanically isolated output (nodes $\text{V}_\text{FG}$ and $\text{V}_\text{HV}$ in Fig.~\ref{Fig:PiezoCircuit}).
 
@@ -148,37 +153,56 @@ The capacitors $C_3$ and $C_4$ are chosen such that $C_3 = \SI{22}{\pico\farad}$
 \end{align}
 as suggested by the DRV2700 datasheet\cite{DRV2700Datasheet}, where $R_6 = R_7 = R_8$, and $R_i~||~R_j \equiv R_i R_j/(R_i + R_j)$.
 In our lab, we implement a gain $G\approx 50$ ($R_3 = R_5 = \SI{499}{\kilo\ohm}$; $R_4 = R_{6,7,8} = \SI{10}{\kilo\ohm}$), allowing a \SI{5}{\volt} control signal $\text{V}_\text{ctl}$ to span \SI{250}{\volt} at the output. 
-A different DAC and/or a different gain factor could be chosen to adjust the maximum output voltage\footnote{Note that the passive components must be rated for the chosen output voltage.}.
-The transformer (ATB3225, 1:10 step-up winding), diode, and RC feedback network are all based on values suggested in the DRV2700 datasheet~\cite{DRV2700Datasheet,DRV2700EVMUserGuide}.
+A different DAC and/or a different gain factor could be chosen to adjust the maximum output voltage.\footnote{Note that the passive components must be rated for the chosen output voltage.}
+The transformer (ATB3225, 1:10 step-up winding), diode, and RC feedback network are all based on values suggested in the DRV2700 datasheet.\cite{DRV2700Datasheet,DRV2700EVMUserGuide}
 
 The output of the flyback regulator is passed through a four-pole, low-pass RC filter.
-The corner frequency $f_c \approx \SI{3}{\kilo\hertz}$ is chosen to be high enough that a slow ($\approx \SI{10}{\hertz}$) rail-to-rail triangle ramp can be applied by the DAC at $\text{V}_\text{ctl}$ (for, e.g., sweeping over a spectroscopy resonance), but low enough that the $\approx \SI{100}{\kilo\hertz}$ switching noise is substantially attenuated.
+The corner frequency $f_c \approx \SI{3}{\kilo\hertz}$ is chosen to be high enough that a slow ($\approx \SI{10}{\hertz}$) rail-to-rail triangle ramp can be applied by the DAC at $\text{V}_\text{ctl}$ (for, e.g., sweeping over a resonance in spectroscopy), but low enough that the $\approx \SI{100}{\kilo\hertz}$ switching noise is substantially attenuated.
 Additional capacitors on both the $\text{V}_\text{HV}$ and $\text{V}_\text{FG}$ resistor networks shunt high frequency noise to ground.
 This filter topology, modeled on a lossy transmission line, is sufficient for our application, but other corner frequencies or topologies could also be used.
 
 \subsection{Low-noise stabilization and fast modulation}
 \label{Sec:LowNoiseStabilization}
 
+
+
+%Rework this paragraph re: dan's comment; stabilization vs 
+%
+%The electronics that control the galvanically isolated output of the DRV2700 works in two ways: keep Cout constant, U2 drives Vmg in order to supress the noise; 
+%
+%emphasize: sensing Vout relative to the true ground, and servoing Vmg to stabilize (remove noise, DC value...) -- explain high level first, then drill down into specifics?
+%
+%Note that the modulation gain is negative, so the voltage Vmod is inverted before being summed onto the output.
+
 The low-noise stabilization circuit is crucial to the performance of the design, as it is responsible for removing noise at the output of the flyback converter.
-To accomplish this, a high slew-rate op-amp (Texas Instruments LM7171, \SI[per-mode=symbol]{4100}{\volt\per\micro\second}) drives the galvanically isolated ground node of the flyback converter (see U2 in Fig.~\ref{Fig:PiezoCircuit}).
-This op-amp enforces the HV output voltage
+To accomplish this, a high slew-rate op-amp (Texas Instruments LM7171, \SI[per-mode=symbol]{4100}{\volt\per\micro\second}) drives the galvanically isolated floating ground of the flyback converter; see U2 in Fig.~\ref{Fig:PiezoCircuit}.
+This op-amp senses the voltage $\text{V}_\text{out}$ referenced to true circuit ground, and adjusts its output such that
 \begin{align}
 \text{V}_\text{out} &= \left(1 + \frac{R_1}{R_2~||~R_\text{mod}}\right) \text{V}_\text{ctl} -
 \left(\frac{R_1}{R_\text{mod}}\right) \text{V}_\text{mod}\,.
 \label{Eq:FullTransferFunc}
 \end{align}
-Here, $\text{V}_\text{mod}$ is the applied modulation, which can vary between $\pm\SI{10}{\volt}$.
+Here, $\text{V}_\text{mod}$ is the applied modulation, which can vary between $\pm\SI{10}{\volt}$ and is inverted before being summed onto the output.
 We choose $R_1 = R_\text{mod} = \SI{1}{\mega\ohm}$ and $R_2 = \SI{20.5}{\kilo\ohm}$ such that the DC gain is $\approx 50$ and the modulation gain $\Delta\text{V}_\text{out}/\Delta\text{V}_\text{mod}$ is unity.
 Depending on the application, other gain configurations could work equally well provided the non-inverting gain of U2 closely matches the gain of the flyback regulator (since they both derive from $\text{V}_\text{ctl}$).
-Ultimately, the op-amp U2 sets the operating voltage of the output (referenced to true circuit ground) while the flyback converter regulates the high voltage relative to $\text{V}_\text{FG}$.
-Because the output of the flyback regulator is galvanically isolated, U2 is able to control $\text{V}_\text{FG}$. 
-At low frequencies, this amounts to changing the floating ground reference for the flyback regulator, while at high frequencies the capacitor $\text{C}_\text{HV}$ provides a low-impedance pathway to $\text{V}_\text{out}$.
-Thus, U2 simultaneously servos residual switching noise from the flyback converter and provides a DC-coupled, high-bandwidth modulation of the output.
+
+The output of U2 can be viewed in two ways.
+At low frequencies, it modifies the floating ground reference $\text{V}_\text{FG}$ for the flyback converter, which regulates the voltage between $\text{V}_\text{HV}$ and $\text{V}_\text{FG}$.
+At higher frequencies, U2 is decoupled from $\text{V}_\text{FG}$ by the passive filtering network.
+Instead, $\text{C}_\text{out}$ provides a low-impedance path directly to the output, such that high-frequency switching noise can be directly compensated for by the op-amp.
+A small resistance $R_{11} = \SI{50}{\ohm}$ is inserted between U2 and $\text{C}_\text{out}$ to ensure stable operation, although smaller values might also work and provide better performance.
+%
+%
+%
+%Ultimately, the op-amp U2 sets the operating voltage of the output (referenced to true circuit ground) while the flyback converter regulates the high voltage relative to $\text{V}_\text{FG}$.
+%Because the output of the flyback regulator is galvanically isolated, U2 is able to control $\text{V}_\text{FG}$. 
+%At low frequencies, this amounts to changing the floating ground reference for the flyback regulator, while at high frequencies the capacitor $\text{C}_\text{out}$ provides a low-impedance pathway to $\text{V}_\text{out}$.
+%Thus, U2 simultaneously suppresses residual switching noise from the flyback converter and provides a DC-coupled, high-bandwidth modulation of the output.
 
 The choice of component for resistors $R_1$ and $R_2$ is crucial for the low-noise performance of the system. 
 Because this resistive divider is responsible for accurately sensing the voltage $\text{V}_\text{out}$, noise introduced by these resistors cannot be corrected by the op-amp.
-Resistors are fundamentally limited by Johnson noise, in which thermal fluctuations contribute to a white noise power spectrum given by $4 k_B T R$, where $T$ is the temperature and $k_B$ is Boltzmann's constant\cite{Horowitz2015a:JN}.
-However, resistors also exhibit $1/f$ current noise caused by equilibrium fluctuations of the resistance~\cite{Clarke1974a,Voss1976a}.
+In general, resistors are fundamentally limited by Johnson noise, in which thermal fluctuations contribute to a white noise power spectrum given by $4 k_B T R$, where $T$ is the temperature and $k_B$ is Boltzmann's constant.\cite{Horowitz2015a:JN}
+However, resistors also exhibit $1/f$ current noise caused by equilibrium fluctuations of the resistance.\cite{Clarke1974a,Voss1976a}
 This excess noise depends on the applied voltage, and therefore is an important consideration in a high-voltage circuit.
 It is also highly dependent on the resistor composition and varies from manufacturer to manufacturer.
 Seifert, et. al.~\cite{Seifert2009a} characterized $1/f$ noise in a variety of resistors, and found that the Vishay TNPW \SI{0.1}{\percent}-series resistors showed a noise spectrum almost consistent with Johnson noise down to \SI{1}{\hertz}.
@@ -200,23 +224,25 @@ For our circuit, this means $\text{C}_\text{mod} = \text{C}_1$.
 \includegraphics[width=\columnwidth]{fig/MOS.ai}
 \caption{MOSFET ``quench'' circuit.
 When the mid-ground node $\text{V}_\text{MG}$ (also shown in Fig.~\ref{Fig:PiezoCircuit}) goes below the threshold value set at $\text{V}_\text{TH}$, the op-amp puts the HV MOSFET Q1 into conduction.
-When engaged, the time constant for capacitor $\text{C}_\text{out}$ in Fig.~\ref{Fig:PiezoCircuit} is given by $R_\text{MOS} C_\text{out}$, which for our circuit is set to \SI{1}{\milli\second}.
+When engaged, the quench time constant is given by $\tau \approx R_\text{MOS} \text{C}_\text{out}$, which for our circuit is set to \SI{1}{\milli\second}. Capacitor $\text{C}_\text{out}=\SI{1}{\micro\farad}$ is shown in Fig.~\ref{Fig:PiezoCircuit}.
 \label{Fig:MOS}}
 \end{figure}
 
 The high-voltage setpoint (absent voltages summed in at $\text{V}_\text{mod}$) is controlled by a low-noise DAC.
-This has two advantages: digital control enhances setpoint repeatability, and makes it easy to integrate with a wide variety of computerized control electronics or implement more sophisticated servo loops.
+This has two advantages: digital control enhances setpoint repeatability, and simplifies integration with a wide variety of computerized control electronics or more sophisticated servo loops.
 While the modulation input $\text{V}_\text{mod}$ has a limited range of $\pm\SI{10}{\volt}$, larger voltage swings can be achieved by reprogramming the DAC.
 
 As discussed below in Sec.~\ref{Sec:NoiseAnalysis}, without modification the DAC would dominate the noise performance of $\text{V}_\text{out}$.
 Therefore, we add a single-pole low-pass filter between $\text{V}_\text{ctl}$ and the non-inverting node of U2.
 This filter has a switchable corner frequency (between \SI{165}{\hertz} and \SI{0.8}{\hertz}) to optimize noise performance at DC while still permitting AC modulation when needed.
+It consists of a \SI{20.5}{\kilo\ohm} resistor and \SI{47}{\nano\farad} capacitor, with a secondary \SI{10}{\micro\farad} capacitor that can be switched in to operate with the lower corner frequency.
 
-One downside of the flyback regulator presented above is that while the switched transformer is very efficient at charging the capacitor $\text{C}_\text{HV}$, discharge of the high-voltage line is limited by the $\approx\SI{1}{\second}$ RC time constant of the circuit.
+One downside of the flyback regulator presented above is that while the switched transformer can quickly charge the output capacitors, the discharge time $\tau$ is limited to {$\approx~\SI{1}{\second}$} by the RC time constant of the circuit.
 To get around this limitation, we have added an auxiliary MOSFET ``quench'' circuit, as suggested in the DRV2700 datasheet, to quickly shunt $\text{V}_\text{out}$ to ground (see Fig.~\ref{Fig:MOS}).
 This circuit works by monitoring the voltage at $\text{V}_\text{MG}$, the mid-ground node controlled by op-amp U2.
 If that voltage drops below a threshold set by $\text{V}_\text{TH}$, the comparator op-amp in Fig.~\ref{Fig:MOS} changes the gate voltage of the MOSFET to put it into conduction.
-The time constant for this configuration is given by $\tau \approx R_\text{MOS}\text{C}_\text{out}$. For our circuit, this changes $\tau$ to $\approx\SI{1}{\milli\second}$, allowing $\text{C}_\text{out}$ to be quickly discharged.
+The time constant for this configuration is given by $\tau \approx R_\text{MOS}\text{C}_\text{out}$.
+For our circuit, this changes $\tau$ to $\approx\SI{1}{\milli\second}$, allowing $\text{C}_\text{out}$ to be quickly discharged.
 The threshold is $\text{V}_\text{TH} = \SI{-10.4}{\volt}$, but other values could be chosen depending on the design requirements.
 
 
@@ -228,36 +254,36 @@ Here, we discuss some additional features of our circuit that are independent of
 The onboard microcontroller responsible for setting the DAC control voltage, $\text{V}_\text{ctl}$, also interfaces with frontpanel controls including a switch, LCD, and rotary encoder with an integrated push button.
 The encoder/push button provide menu navigation, and the switch toggles between DC and scanning operation.
 However, other user interfaces can easily be designed to work with the existing hardware.
-Arduino-based code written in \CC defines the entire software interaction, and can be modified depending on the needs of the researcher.
+Arduino-based code\cite{Arduino} written in \CC defines the entire software interaction, and can be modified depending on the needs of the researcher.
 
-The entire circuit fits into a standard Eurocard rack, which supplies power at $\pm\SI{15}{\volt}$.
+The circuit fits into a standard Eurocard module (3U by 12HP by \SI{160}{\milli\meter}), and is mounted in a Eurocard rack to supply power at $\pm\SI{15}{\volt}$.
 While not required, the rack provides a backplane with analog lines to communicate with other modules (e.g., to implement a current feed-forward for laser diodes as described below).
 We are presently designing a backplane with a secondary microcontroller that can be addressed over TCP/IP.
 This vastly expands the conceivable control scenarios. 
-For example, in our lab we implement a slow-feedback lock of two external-cavity diode lasers to a wavemeter.
-LabView code on the computer attached to the wavemeter computes an error signal and corrective control voltage, which will be passed over our internal network to the piezo driver to correct for frequency drifts in the laser.
+For example, in our lab we implement a slow-feedback lock of external-cavity diode lasers to a wavemeter.
+Software on the computer attached to the wavemeter computes an error signal and corrective control voltage, which will be passed over our internal network to the piezo driver to correct for frequency drifts in the laser.
 Other similar schemes are possible, enabling complete remote control of the laser electronics.
 
 The modulation voltage $\text{V}_\text{mod}$ can be supplied either from a BNC on the frontpanel or from the backplane.
 This may be useful, e.g., with servo controllers that reside in the same rack as the other control electronics.
 In either case, this voltage is differentially buffered to break ground loops.
-An output voltage monitor (sensed at the inverting node of U2 in Fig.~\ref{Fig:PiezoCircuit}, but not shown) is buffered and connected to a BNC on the frontpanel, an analog signal line on the backplane, and to the microcontroller\footnote{One drawback of this scheme is that the contribution of $\text{V}_\text{mod}$ is not sensed by the monitor. Future versions will instead monitor $\text{V}_\text{out}$ through a resistive divider, allowing the microcontroller to implement an infinite integrator and drive $\text{V}_\text{mod}$ to \SI{0}{\volt} in closed-loop operation. This will be a very useful feature to prevent the servo controller from railing.}.
+An output voltage monitor (sensed at the inverting node of U2 in Fig.~\ref{Fig:PiezoCircuit}, but not shown) is buffered and connected to a BNC on the frontpanel, an analog signal line on the backplane, and to the microcontroller.\footnote{One drawback of this scheme is that the contribution of $\text{V}_\text{mod}$ is not sensed by the monitor. Future versions will instead monitor $\text{V}_\text{out}$ through a resistive divider, allowing the microcontroller to implement an infinite integrator and drive $\text{V}_\text{mod}$ to \SI{0}{\volt} in closed-loop operation. This will be a very useful feature to prevent the servo controller from railing.}
 The backplane monitor could be fed to a low-noise current controller (e.g., one based on the design in Erickson, et. al.~\cite{Erickson2008a}) to implement a laser diode current feed-forward.
-The high voltage output is interlocked with another signal on the backplane, which can optionally be bypassed by placing an onboard jumper, permitting easy integration with existing laboratory interlock schemes if desired.
-Further details on the design features discussed in this section, including sample software, can be found on Github~\cite{PiezoDesignFiles}.
+The high-voltage output is interlocked with another signal on the backplane, which can optionally be bypassed by placing an onboard jumper, permitting easy integration with existing laboratory interlock schemes if desired.
+Further details on the design features discussed in this section, including sample software, can be found on Github.\cite{PiezoDesignFiles}
 
 \section{Noise Analysis}
 \label{Sec:NoiseAnalysis}
 
 \begin{figure}[t]
 \includegraphics[width=\columnwidth]{fig/NoiseModel.ai}
-\caption{Noise model. The element labeled $\text{C}_\text{LP}$ is comprised of a \SI{47}{\nano\farad} capacitor in parallel with a \SI{10}{\micro\farad} capacitor connected to ground through a switch, such that the corner frequency of the filter can be changed depending on the mode of operation  (see text). %The on-resistance of the switch introduces a zero in the transfer function at $\approx\SI{23}{\kilo\hertz}$, which has negligible effect on the computed RMS noise.
+\caption{Noise model, including contributions from the op-amp, DAC, DRV2700, and modulation input. The element labeled $\text{C}_\text{LP}$ consists of a \SI{47}{\nano\farad} capacitor in parallel with a \SI{10}{\micro\farad} capacitor connected to ground through a switch, such that the corner frequency of the filter can be changed depending on the mode of operation  (see text). Though not drawn in the figure, we also consider the Johnson noise contributions from all resistors.
 \label{Fig:NoiseModel}}
 \end{figure}
 
 We analyze the noise performance of the circuit according to the model shown in Fig.~\ref{Fig:NoiseModel}, where noise spectral densities are calculated at the node $\text{V}_\text{out}$.
-A summary of each noise contribution (op-amp, DAC, Johnson-Nyquist, and residual ripple from the DRV2700) is shown in Fig.~\ref{Fig:NoisePlot}, along with the cumulative root-mean-square (RMS) nose estimates in different frequency bands.
-We will neglect the ``modulation noise'' appearing at node $\text{V}_\text{mod}$, because its exact character depends on the external drive.
+A summary of each noise contribution (op-amp, DAC, Johnson-Nyquist, and residual ripple from the DRV2700) is shown in Fig.~\ref{Fig:NoisePlot}, along with the cumulative root-mean-square (RMS) noise estimates in different frequency bands.
+We will neglect noise appearing at node $\text{V}_\text{mod}$ due to the external modulation because its exact character depends on the external drive.
 
 To facilitate the noise analysis, we first calculate the voltage and current (transimpedance) gains from the input nodes of U2 to the output, $\text{V}_\text{out}$.
 Starting with the non-inverting node, we find the voltage gain to be
@@ -268,9 +294,9 @@ where $Z_1$ and $Z_\text{mod}$ are the equivalent impedances of $R_1~||~\text{C}
 The transimpedance gain, $G^{(i)}_{+}$, follows by multiplying $G_+^{(v)}$ by the impedance, $Z_+$, seen from that node. % $Z_+ = R_\text{LP}~||~\text{C}_\text{LP}$ seen from that node.
 Thus,
 \begin{align}
-G_{+}^{(i)} = G_{+}^{(v)}\left[\frac{R_\text{LP}}{1+2\pi i f R_\text{LP} C_\text{LP}}\right]\,,
+G_{+}^{(i)} = G_{+}^{(v)}\left[\frac{R_\text{LP}}{1+2\pi \iu f R_\text{LP} C_\text{LP}}\right]\,,
 \end{align}
-where the bracketed term is $Z_+$, and $f$ is the Fourier frequency.
+where the bracketed term is $Z_+$, $f$ is the Fourier frequency, and $\iu$ is the imaginary unit.
  
 \begin{figure}[t]
 \subfloat{
@@ -279,78 +305,80 @@ where the bracketed term is $Z_+$, and $f$ is the Fourier frequency.
 
 \subfloat{
 \centering
-\begin{tabular*}{0.95\columnwidth}{@{\extracolsep{\fill}} lcc}
+\begin{tabular*}{\columnwidth}{@{\extracolsep{\fill}} llcc}
 \hline\hline
-\rule{0pt}{2.5ex}\multirow{2}{*}{Noise source} & RMS Voltage & RMS Voltage \\
-& (\SI{1}{\hertz}~--~\SI{10}{\hertz})\rule[-1ex]{0pt}{1ex} & (\SI{10}{\hertz}~--~\SI{100}{\kilo\hertz})\rule[-1ex]{0pt}{1ex} \\
+\rule{0pt}{2.5ex}\multirow{2}{*}{Noise source} & & RMS Voltage & RMS Voltage \\
+& & (\SI{1}{\hertz}~--~\SI{10}{\hertz})\rule[-1ex]{0pt}{1ex} & (\SI{10}{\hertz}~--~\SI{100}{\kilo\hertz})\rule[-1ex]{0pt}{1ex} \\
 \hline
-\rule{0pt}{2ex}$e_n$ (op-amp U2)  & \SI{26}{\micro\volt} & \SI{31}{\micro\volt}      \\
-$i_n$ (op-amp U2)  &            \SI{51}{\micro\volt}     & \SI{73}{\micro\volt}      \\
-DAC             &             \SI{28}{\micro\volt}    & \SI{8}{\micro\volt}       \\
-Johnson-Nyquist &             \SI{3}{\micro\volt}    & \SI{14}{\micro\volt}        \\ 
-Residual switching &        \SI{15}{\micro\volt}   & \SI{43}{\micro\volt} \\
+\rule{0pt}{2ex}op-amp voltage & ($e_{v,\text{U2}}$)  & \SI{26}{\micro\volt} & \SI{31}{\micro\volt}      \\
+op-amp voltage &  ($e_{i,\text{U2}}$)  &            \SI{51}{\micro\volt}     & \SI{73}{\micro\volt}      \\
+DAC             &  ($e_{n,\text{DAC}}$)  &          \SI{28}{\micro\volt}    & \SI{8}{\micro\volt}       \\
+Johnson-Nyquist &   ($e_{n,\text{JN}}$)  &         \SI{3}{\micro\volt}    & \SI{14}{\micro\volt}        \\ 
+DRV2700 & ($e_{n,\text{DRV}}$) &        \SI{15}{\micro\volt}   & \SI{43}{\micro\volt} \\
 \hline
-\rule{0pt}{2ex}\textbf{total (calculated)} & \SI{66}{\micro\volt} & \SI{92}{\micro\volt}  \\
+\rule{0pt}{2ex}\textbf{total (calculated)} & & \SI{66}{\micro\volt} & \SI{92}{\micro\volt}  \\
 \hline\hline
 \end{tabular*}
 }
-\caption{Noise Contributions (color online). Plotted are the noise contributions from each source in our model, along with the total calculated noise. Power spectral density (PSD) is referred to the high voltage output, and the table shows the integrated RMS noise due to each noise source in different frequency bands. The total RMS noise (summed in quadrature) over the entire \SI{1}{\hertz}~--~\SI{100}{\kilo\hertz} range is calculated to be \SI{113}{\micro\volt}, with the residual switching noise measured at \SI{100}{\volt}. Frequency-dependent noise spectra for the DAC and op-amp were extracted from the datasheets. \label{Fig:NoisePlot}}
+\caption{Noise Contributions (color online). Plotted are the noise contributions from each source in our model, along with the total calculated noise. Power spectral density (PSD) is referred to the high-voltage output, and the table shows the integrated RMS noise due to each noise source in different frequency bands. The total RMS noise (summed in quadrature) over the entire \SI{1}{\hertz}~--~\SI{100}{\kilo\hertz} range is calculated to be \SI{113}{\micro\volt}, with the residual DRV2700 switching noise measured at \SI{100}{\volt} as described in the text. Frequency-dependent noise spectra for the DAC and op-amp were extracted from the datasheets.\label{Fig:NoisePlot}}
 \end{figure} 
 
 We now calculate gains from the inverting node of U2.
 Because any currents appearing at this node will be cancelled by the feedback of U2, the transimpedance gain $G_{-}^{(i)}$ is simply the impedance $Z_1$, given by
 \begin{align}
-G_{-}^{(i)} = Z_1 \equiv \frac{R_1}{1+2\pi i f R_1 C_1}\,.
+G_{-}^{(i)} = Z_1 \equiv \frac{R_1}{1+2\pi \iu f R_1 C_1}\,.
 \end{align}
-The voltage gain from this node is similarly given by
-\begin{align}
-G_{-}^{(v)} = -Z_1 \left(\frac{1}{R_2} + \frac{1}{Z_\text{mod}}\right)\,.
-\end{align}
-With these in hand, we can calculate the output noise contribution from each source in our model.
+%The voltage gain from this node is similarly given by
+%\begin{align}
+%G_{-}^{(v)} = -Z_1 \left(\frac{1}{R_2} + \frac{1}{Z_\text{mod}}\right)\,.
+%\end{align}
+With these expressions in hand, we can calculate the output noise contribution from each source in our model.
 
 As shown in Fig.~\ref{Fig:NoiseModel}, the op-amp noise is parametrized by two noise contributions: $e_n$, the input voltage noise spectral density, and $i_n$, the input current noise spectral density.
-For the LM7171, $e_n = \SI[per-mode=symbol]{14}{\nano\volt\per\sqrthz}$ and $i_n = \SI[per-mode=symbol]{1.5}{\pico\ampere\per\sqrthz}$ at $\SI{10}{\kilo\hertz}$, with a $1/f$ noise character below this frequency~\cite{LM7171Datasheet}.
+For the LM7171, $e_n = \SI[per-mode=symbol]{14}{\nano\volt\per\sqrthz}$ and $i_n = \SI[per-mode=symbol]{1.5}{\pico\ampere\per\sqrthz}$ at $\SI{10}{\kilo\hertz}$ with a $1/f$ noise character below this frequency.\cite{LM7171Datasheet}
 The voltage noise appears at the non-inverting input, while the current noise is present at both inputs.
-By multiplying each source by the appropriate gain, we obtain the equivalent output noise power spectral densities (PSD),
+By multiplying each source by the appropriate gain, we obtain the equivalent output-noise power spectral densities (PSD),
 \begin{align}
 \begin{split}
 e^2_{v,\text{U2}} &= \big|G_{+}^{(v)}\big|^2 e^2_n \\
 e^2_{i,\text{U2}} &= \big|G_{-}^{(i)}\big|^2 i^2_n + \big|G_{+}^{(i)}\big|^2 i^2_n\,,
 \end{split}
 \end{align}
-where  $e^2_{v,\text{U2}}$, $e^2_{i,\text{U2}}$ are the output-referred voltage and current noise PSD, respectively.
+where  $e^2_{v,\text{U2}}$, $e^2_{i,\text{U2}}$ are the output-referred voltage and current noise PSD, respectively (plotted in Fig.~\ref{Fig:NoisePlot}).
 
 \begin{figure}[t]
 \includegraphics[width=\columnwidth]{fig/VoltagePSD.png}
-\caption{Voltage power spectral density at various output voltages. The integrated RMS voltage noise ($\SI{1}{\hertz} - \SI{100}{\kilo\hertz}$) is $\{138, 80, 101\}~\si{\micro\volt}$ measured at  $\{50, 100, 200\}~\si{\volt}$, with no output load. \label{Fig:PSD}}
+\caption{Voltage noise power spectral density at various output voltages (color online). The integrated RMS noise ($\SI{1}{\hertz} - \SI{100}{\kilo\hertz}$) is $\{138, 80, 101\}~\si{\micro\volt}$ measured at  $\{50, 100, 200\}~\si{\volt}$, with no output load. The dashed black line indicates the noise estimate from our model (see Fig.~\ref{Fig:NoisePlot}).\label{Fig:PSD}}
 \end{figure}
 
 Next, we calculate the DAC noise contribution.
 The voltage gain from the node $\text{V}_{\text{ctl}}$ is given by
 \begin{align}
 \label{Eq:Gdc}
-G^{(v)}_{\text{ctl}} &= \left(\frac{1}{1+2\pi i f R_\text{LP} C_\text{LP}}\right)G_{+}^{(v)}\,,
+G^{(v)}_{\text{ctl}} &= \left[\frac{1}{1+2\pi \iu f R_\text{LP} C_\text{LP}}\right]G_{+}^{(v)}\,,
 \end{align}
-where the first term represents the contribution to the transfer function from the switchable low-pass filter.
+where the bracketed term represents the contribution to the transfer function from the switchable low-pass filter.
 Without the addition of this low-pass filter, the voltage noise of the DAC would dominate both the low- and high-frequency noise performance of the circuit.
 A simple solution would be to place a fixed-corner filter at this node, but this would severely restrict the AC performance of $\text{V}_\text{ctl}$.
 Thus, we use a switchable low-pass filter (as described in Sec.~\ref{Sec:SlowModulationMOS}) to achieve low-noise performance during DC operation, while still permitting the DAC to modulate $\text{V}_\text{ctl}$ more quickly when needed.
-In our circuit, the high-corner filter is comprised of a \SI{20.5}{\kilo\ohm} resistor and \SI{47}{\nano\farad} capacitor, with $f_c \approx \SI{165}{\hertz}$.
-In DC mode, a secondary \SI{10}{\micro\farad} capacitor in parallel with the \SI{47}{\nano\farad} capacitor mentioned above can be connected to ground through a low resistance digital switch.
-This changes the corner frequency to \SI{0.8}{\hertz}.
+%In our circuit, the high-corner filter is comprised of a \SI{20.5}{\kilo\ohm} resistor and \SI{47}{\nano\farad} capacitor, with $f_c \approx \SI{165}{\hertz}$.
+%In DC mode, a secondary \SI{10}{\micro\farad} capacitor in parallel with the \SI{47}{\nano\farad} capacitor mentioned above can be connected to ground through a low resistance digital switch.
+%This changes the corner frequency to \SI{0.8}{\hertz}.
 The non-zero resistance of the switch contributes a zero to the transfer function at $\approx\SI{23}{\kilo\hertz}$, but has negligible effect on the performance.
 The DAC voltage noise contribution can now be calculated as 
 \begin{align}
 e^2_{n,\text{DAC}} = \big|G^{(v)}_{\text{ctl}}\big|^2 v^2_{n,\text{DAC}}\,,
 \end{align}
-where $v_{n,\text{DAC}}$ is the frequency dependent output voltage noise of the DAC\cite{AD56XXRDatasheet}. 
-In subsequent calculations, we take the DC-mode operation for the switchable low-pass filter.
-
+where $v_{n,\text{DAC}}$ is the frequency dependent output voltage noise of the DAC as reported in the datasheet.\cite{AD56XXRDatasheet} 
+In subsequent calculations, we take the DC-mode operation ($f_c = \SI{0.8}{\hertz}$) for the switchable low-pass filter.
  
 
 \begin{figure}[b]
 \includegraphics[width=\columnwidth]{fig/TimeDomain.png}
-\caption{Time-domain traces of the high voltage output (\SI{100}{\volt}). (a) Short-time scatterplot  (AC coupled). Points are colored based on the Gaussian spread in acquired voltages, thus indicating the RMS width of the trace. (b) Long-term trace, measured on a Keithly~2010 digital multimeter. A~\SI{100}{\volt} DC offset is subtracted from the plotted values. The top panel shows the lab temperature during the same time period.\label{Fig:TimeDomain}}
+\caption{Time-domain traces of the high-voltage output (\SI{100}{\volt}). (a) Short-time scatterplot  (AC coupled). 
+%Points are colored based on the Gaussian spread in acquired voltages, thus indicating the RMS width of the trace.
+The points have been down-sampled and colored based on their probability of occurence, thus providing a visual estimation of the RMS width.
+(b) Long-term trace, measured on a Keithly~2010 digital multimeter. A~\SI{100}{\volt} DC offset is subtracted from the plotted values. The top panel shows the lab temperature during the same time period.\label{Fig:TimeDomain}}
 \end{figure}
 
 The Johnson noise contribution can be calculated by modeling each resistor with a parallel current noise given by $i_\text{R}^2 = 4k_B T/R$.
@@ -368,10 +396,10 @@ e^2_{n,\text{JN}} &= 4 k_B T \times \\
 
 
 The low-noise stabilization circuit is limited in its ability to reject residual switching noise from the DRV2700 regulator (after the passive filtering network) by the total loop gain analyzed from node $\text{V}_\text{out}$.
-The LM7171 has a reported open-loop gain of \SI{85}{\decibel} ($\approx 1.8\times 10^4$), with a dominant pole at $\approx\SI{10}{\kilo\hertz}$\cite{LM7171Datasheet}.
+The LM7171 has a reported open-loop gain of \SI{85}{\decibel} ($\approx 1.8\times 10^4$), with a dominant pole at $\approx\SI{10}{\kilo\hertz}$.\cite{LM7171Datasheet}
 We can model the open loop gain, $G_\text{OL}$, as
 \begin{align}
-G_\text{OL} &= \frac{1.8\times10^4}{1 + i (f/\SI{10}{\kilo\hertz})}\,.
+G_\text{OL} &= \frac{1.8\times10^4}{1 + \iu (f/\SI{10}{\kilo\hertz})}\,.
 \end{align}
 The feedback network contributes a gain
 \begin{align}
@@ -388,9 +416,10 @@ e^2_{n,\text{DRV}} = v^2_{n,\text{DRV}}\big|G^{(\text{DRV})}\big|^2\,.
 \end{align}
 For $R_1=\SI{1}{\mega\ohm}$ and $\text{C}_1 = \SI{1}{\nano\farad}$, $v_{n,\text{DRV}}$ is attenuated by as much as \SI{76}{\decibel} at \SI{6.3}{\kilo\hertz}.
 
-A good estimate of the noise spectral density $v_{n,\text{DRV}}$ can be obtained by measuring the voltage power spectrum at node $\text{V}_\text{U2}$ in Fig.~\ref{Fig:NoiseModel}, since the output of this op-amp represents the control signal required to cancel voltage fluctuations at $\text{V}_\text{out}$.
-The trace plotted in Fig.~\ref{Fig:NoisePlot} assumes $v_{n,\text{DRV}}$ given by this measurement. 
-Because the noise floor of our instrument crosses the measurement trace at $\approx\SI{10}{\kilo\hertz}$, we only plot out to that frequency.
+We estimate the noise spectral density $v_{n,\text{DRV}}$ by measuring it at node $\text{V}_\text{U2}$ in Fig.~\ref{Fig:NoiseModel}, since the output of this op-amp represents the control signal required to cancel voltage fluctuations at $\text{V}_\text{out}$.
+The trace for $e_{n,\text{DRV}}$ plotted in Fig.~\ref{Fig:NoisePlot} is derived from the results of this measurement.
+Because the measured $v_{n,\text{DRV}}$ drops below the noise floor of our spectrum analyzer at $\approx \SI{10}{\kilo\hertz}$, we only plot the trace out to this frequency.
+%%% Comment about the total RMS noise from DRV2700, cancellation by op amp
 
 % such that the closed-loop gain for noise contributed by the flyback regulator at node $\text{V}_\text{out}$ is minimized in the \SIrange{40}{100}{\kilo\hertz} switching noise band.
 %For $R_1=\SI{1}{\mega\ohm}$, we choose $\text{C}_1=\SI{1}{\nano\farad}$.
@@ -398,17 +427,17 @@ Because the noise floor of our instrument crosses the measurement trace at $\app
 
 Given the noise model discussed above, our circuit is dominated by the op-amp's intrinsic current noise at lower frequencies, and voltage noise at higher frequencies.
 The op-amp current noise contribution could be suppressed by using lower resistances $R_1$ and $R_\text{mod}$, however one must be careful about power and current limitations when dealing with such high voltages.
-Each noise source is tabulated and plotted in Fig.~\ref{Fig:NoisePlot}, and the total voltage noise  is calculated to be $\SI{113}{\micro\volt}$ ($\SI{1}{\hertz} - \SI{100}{\kilo\hertz}$, $\text{V}_\text{out} = \SI{100}{\volt}$).
-Frequency-dependent input noise parameters in this model were extracted from datasheet spectral density curves\cite{LM7171Datasheet,AD56XXRDatasheet}, and measured for the residual DRV2700 noise $v_{n,\text{DRV}}$ as discussed above.
-At lower voltages, the residual ripple from the DRV2700 begins to dominate the noise performance.
-This can be seen in Fig.~\ref{Fig:PSD}, as the characteristic shape changes between \SI{100}{\volt} and \SI{50}{\volt}.
+Each noise source is tabulated and plotted in Fig.~\ref{Fig:NoisePlot}, and the total voltage noise ($\SI{1}{\hertz} - \SI{100}{\kilo\hertz}$, $\text{V}_\text{out} = \SI{100}{\volt}$) is calculated to be $\SI{113}{\micro\volt}$ .
+%Frequency-dependent input noise parameters in this model were extracted from datasheet spectral density curves\cite{LM7171Datasheet,AD56XXRDatasheet}, and measured for the residual DRV2700 noise $v_{n,\text{DRV}}$ as discussed above.
+%At lower voltages, the residual ripple from the DRV2700 begins to dominate the noise performance.
+%This can be seen in Fig.~\ref{Fig:PSD}, as the characteristic shape changes between \SI{100}{\volt} and \SI{50}{\volt}.
 
 \section{Results}
 \label{Sec:Results}
 
 \begin{figure}[t]
 \includegraphics[width=\columnwidth]{fig/PiezoModulationTransfer.png}
-\caption{Modulation input transfer function (color online). The blue line indicates the unloaded frequency response, while the dash-dotted orange trace shows the response with a ThorLabs piezoelectric actuator {(PN~AE0505D08F)}. Mechanical resonances above $\approx\SI{50}{\kilo\hertz}$ are clearly visible. The dashed green trace shows the response under a \SI{1}{\micro\farad} purely capacitive load. Loaded response bandwidth is $\approx\SI{100}{\kilo\hertz}$, while the unloaded bandwidth is $\approx\SI{1}{\mega\hertz}$.\label{Fig:TransferFunc}}
+\caption{Modulation input transfer function (color online). The solid blue line indicates the unloaded frequency response, while the dash-dotted orange trace shows the response with a \SI{700}{\nano\farad} piezoelectric actuator~{(Thorlabs PN~AE0505D08F)}. Mechanical resonances above $\approx\SI{50}{\kilo\hertz}$ are clearly visible. The dashed green trace shows the response under a \SI{1}{\micro\farad} purely capacitive load. Loaded response bandwidth is $\approx~\SI{100}{\kilo\hertz}$, while the unloaded bandwidth is $\approx~\SI{1}{\mega\hertz}$.\label{Fig:TransferFunc}}
 \end{figure}
 
 The measured performance of the high-voltage piezo driver is shown in Fig.~\ref{Fig:PSD}, where we plot the noise power spectral density measured at several different output voltages.
@@ -416,21 +445,22 @@ These traces were taken on a Stanford Research Systems SR780 spectrum analyzer, 
 This represents a worst-case scenario, as larger capacitances at the output will reduce the noise.
 The integrated noise ($\SI{1}{\hertz} - \SI{100}{\kilo\hertz}$) was measured to be $\{\SI{138}{\micro\volt}_\text{RMS},~\SI{80}{\micro\volt}_\text{RMS},~\SI{101}{\micro\volt}_\text{RMS}\}$ for \{\SI{50}{\volt}, \SI{100}{\volt}, \SI{200}{\volt}\} outputs. 
 This matches roughly with the expected total RMS noise calculated in Sec.~\ref{Sec:NoiseAnalysis}.
-The difference in noise performance at different output voltages can be traced back to the residual ripple of the DRV2700, which counterintuitively is larger for lower output voltages.
-The additional low-frequency $1/f$ noise present at \SI{200}{\volt} we suspect is due to some voltage-dependent noise source not considered in our model.
+The difference in noise performance at different output voltages can be traced back to the residual ripple of the DRV2700, which is larger for lower output voltages.
+Indeed, one can see the characteristic shape change between \SI{100}{\volt} and \SI{50}{\volt} in Fig.~\ref{Fig:PSD} as the residual ripple $e_{n,\text{DRV}}$ begins to dominate at low frequencies.
 
 Fig.~\ref{Fig:TimeDomain} shows the performance at both short- and long-time scales.
 At long times, voltage fluctuations on the order of a few \si{\milli\volt} can be observed.
 This is due generically to $1/f$ noise, but also correlates with the external temperature.
-A cross-correlation between measured temperature and output voltage (trace not shown) yields an effective temperature coefficient of \SI[per-mode=symbol]{-24}{ppm\per\celsius} at \SI{100}{\volt}.
+A cross-correlation between the measured temperature and output voltage (trace not shown) yields an effective temperature coefficient of \SI[per-mode=symbol]{-24}{ppm\per\celsius} at \SI{100}{\volt}.
 The short-term trace was taken on a PicoScope~5442B (AC-coupled, \SI{100}{\volt} output).
-Points are colored based on their normally distributed statistical probability, and thus give a visual estimation of the RMS width.
+For clarity, the trace has been down-sampled and the points colored based on their probability of occurrence.
+Thus, the color gives a visual estimation of the RMS width.
+% are colored based on their normally distributed statistical probability, and thus give a visual estimation of the RMS width.
 
 
 Fig.~\ref{Fig:TransferFunc} shows the measured frequency response under different load conditions. The unloaded bandwidth is as high as a few megahertz, while a \SI{1}{\micro\farad} capacitive load can still be driven at $\approx\SI{100}{\kilo\hertz}$. 
 Several mechanical resonances can be seen with a \SI{700}{\nano\farad} piezoelectric load, as expected.
 In a laboratory setting, these resonances can be mitigated by using a digital feedback controller with notch filters tuned to match the exact resonance frequencies observed in the system\cite{Ryou2016a}, thereby extending the usable bandwidth out to $\approx\SI{100}{\kilo\hertz}$.
-
 
 
 \section{Conclusion}
