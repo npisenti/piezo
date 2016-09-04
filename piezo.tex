@@ -30,6 +30,9 @@
 
 %% Work with illustrator *.ai files...
 \DeclareGraphicsRule{.ai}{pdf}{.ai}{}
+\DeclareGraphicsExtensions{.png,.tiff,.ai,.eps}
+\graphicspath{{fig/}}
+
 
 %% useful macros
 \newcommand{\epar}{~||~} % add impedances in parallel
@@ -97,7 +100,7 @@ The board manufacture and component cost is less than \SI{200}[\$]{}, making it 
 \label{Sec:Circuit}
 
 \begin{figure*}[t]
-\includegraphics[width=\textwidth]{fig/Schematic.ai}
+\includegraphics[width=\textwidth]{Schematic}
 \caption{Schematic of the high voltage supply and stabilization.
 The voltage $\text{V}_\text{HV}$ is generated using a Texas Instruments DRV2700 high voltage driver in flyback configuration.
 A high slew-rate op-amp (U2) senses the output voltage across $R_1$ and $R_2$, and controls it by modulating the mid-ground node $\text{V}_\text{MG}$.
@@ -106,7 +109,6 @@ This design allows for very heavy filtering of the DAC $1/f$ noise during steady
 The $\text{V}_{\text{ctl}}$ gain is set by $\left(1+R_1/R_2\right)$, while the modulation gain is set by $-R_1/R_\text{mod}$.
 The op-amp U2 removes residual switching noise and stabilizes the DC output according to the transfer function given in Eq.~(\ref{Eq:FullTransferFunc}).
 A MOSFET quench circuit, shown in Fig.~\ref{Fig:MOS}, connects at nodes $\text{V}_\text{out}$ and $\text{V}_\text{MG}$.
-%Op-amps U1 and U2 are powered at $\pm\SI{15}{\volt}$ (not shown).
 \label{Fig:PiezoCircuit}}
 \end{figure*}
 
@@ -215,7 +217,7 @@ For our circuit, this means $\text{C}_\text{mod} = \text{C}_1$.
 \label{Sec:SlowModulationMOS}
 
 \begin{figure}[t!]
-\includegraphics[width=\columnwidth]{fig/MOS.ai}
+\includegraphics[width=\columnwidth]{MOS}
 \caption{MOSFET ``quench'' circuit.
 When the mid-ground node $\text{V}_\text{MG}$ (also shown in Fig.~\ref{Fig:PiezoCircuit}) goes below the threshold value set at $\text{V}_\text{TH}$, the op-amp puts the HV MOSFET Q1 into conduction.
 When engaged, the quench time constant is given by $\tau \approx R_\text{MOS} \text{C}_\text{out}$, which for our circuit is set to \SI{1}{\milli\second}. Capacitor $\text{C}_\text{out}=\SI{1}{\micro\farad}$ is shown in Fig.~\ref{Fig:PiezoCircuit}.
@@ -270,7 +272,7 @@ Further details on the design features discussed in this section, including samp
 \label{Sec:NoiseAnalysis}
 
 \begin{figure}[t]
-\includegraphics[width=\columnwidth]{fig/NoiseModel.ai}
+\includegraphics[width=\columnwidth]{NoiseModel}
 \caption{Noise model, including contributions from the op-amp, DAC, DRV2700, and modulation input. The element labeled $\text{C}_\text{LP}$ consists of a \SI{47}{\nano\farad} capacitor in parallel with a \SI{10}{\micro\farad} capacitor connected to ground through a switch, such that the corner frequency of the filter can be changed depending on the mode of operation  (see text). Though not drawn in the figure, we also consider the Johnson noise contributions from all resistors.
 \label{Fig:NoiseModel}}
 \end{figure}
@@ -294,7 +296,7 @@ where the bracketed term is $Z_+$, $f$ is the Fourier frequency, and $\iu$ is th
  
 \begin{figure}[t]
 \subfloat{
-\includegraphics[width=\columnwidth]{fig/NoiseContrib.png}
+\includegraphics[width=\columnwidth]{NoiseContrib}
 }
 
 \subfloat{
@@ -341,7 +343,7 @@ e^2_{i,\text{U2}} &= \big|G_{-}^{(i)}\big|^2 i^2_n + \big|G_{+}^{(i)}\big|^2 i^2
 where  $e^2_{v,\text{U2}}$, $e^2_{i,\text{U2}}$ are the output-referred voltage and current noise PSD, respectively (plotted in Fig.~\ref{Fig:NoisePlot}).
 
 \begin{figure}[t]
-\includegraphics[width=\columnwidth]{fig/VoltagePSD.png}
+\includegraphics[width=\columnwidth]{VoltagePSD}
 \caption{Voltage noise power spectral density at various output voltages (color online). The integrated RMS noise ($\SI{1}{\hertz} - \SI{100}{\kilo\hertz}$) is $\{138, 80, 101\}~\si{\micro\volt}$ measured at  $\{50, 100, 200\}~\si{\volt}$, with no output load. The dashed black line indicates the total noise estimate from our model, calculated at \SI{100}{\volt} (see Fig.~\ref{Fig:NoisePlot}).\label{Fig:PSD}}
 \end{figure}
 
@@ -368,7 +370,7 @@ In subsequent calculations, we take the DC-mode operation ($f_c = \SI{0.8}{\hert
  
 
 \begin{figure}[b]
-\includegraphics[width=\columnwidth]{fig/TimeDomain.png}
+\includegraphics[width=\columnwidth]{TimeDomain}
 \caption{Time-domain traces of the high-voltage output (\SI{100}{\volt}, color online). (a) Short-time scatterplot  (AC coupled). 
 %Points are colored based on the Gaussian spread in acquired voltages, thus indicating the RMS width of the trace.
 %The points have been down-sampled and colored based on their probability of occurence, thus providing a visual estimation of the RMS width.
@@ -425,7 +427,7 @@ Each noise source is tabulated and plotted in Fig.~\ref{Fig:NoisePlot}, and the 
 \label{Sec:Results}
 
 \begin{figure}[t]
-\includegraphics[width=\columnwidth]{fig/PiezoModulationTransfer.png}
+\includegraphics[width=\columnwidth]{PiezoModulationTransfer}
 \caption{Modulation input transfer function (color online). The solid blue line indicates the unloaded frequency response, while the dash-dotted orange trace shows the response with a \SI{700}{\nano\farad} piezoelectric actuator~{(Thorlabs PN~AE0505D08F)}. Mechanical resonances above $\approx\SI{50}{\kilo\hertz}$ are clearly visible. The dashed green trace shows the response under a \SI{1}{\micro\farad} purely capacitive load. Loaded response bandwidth is $\approx~\SI{100}{\kilo\hertz}$, while the unloaded bandwidth is $\approx~\SI{1}{\mega\hertz}$.\label{Fig:TransferFunc}}
 \end{figure}
 
@@ -463,8 +465,6 @@ The authors would like to thank Z. Smith for useful discussions.
 This work was partially supported by the Office of Naval Research, and the National Science Foundation through the Physics Frontier Center at the Joint Quantum Institute.
 \end{acknowledgments}
 
-
-% Run this once to generate your BBL file. Then copy the contents of your BBL file into your main latex file, commenting out "\bibliography"
 \bibliography{references}
 
 
