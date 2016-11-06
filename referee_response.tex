@@ -1,0 +1,112 @@
+\documentclass[12pt, oneside]{letter}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{geometry}                		% See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   		% ... or a4paper or a5paper or ... 
+%\geometry{landscape}                		% Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex		
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+
+\usepackage{siunitx}
+\DeclareSIUnit{\sqrthz}{\ensuremath{\sqrt{\text{\hertz}}}}
+
+
+\begin{document}
+
+Dear Editors:
+
+We thank the referees for their review of our paper, and are pleased they found it suitable for publication.
+We are also thankful for their thoughtful comments, which have allowed us to improve our manuscript considerably.
+Please see below for a detailed summary of our changes and answers to the referees' comments and questions.
+Italics indicate quotes from the referees.
+
+
+\textbf{1.}
+\textit{There is only one missing piece in the analysis of this circuit-the phase of the transfer function. 
+When designing feedback circuits the shape of the transfer function is of great importance, but so is the relative phase of the feedback. 
+This is especially true in circuits involving digital components. 
+In this manuscript I do not see any mention or analysis of the phase of transfer function. 
+To complete this study a mention of the behavior of the circuit of the demonstration of the unloaded is needed.}
+
+We completely agree, and it was an oversight to neglect this.
+We have updated Fig.~7 to include the unloaded phase response.
+We have also updated the figure caption to reflect this change.
+
+
+\textbf{2.}
+\textit{The section on Auxiliary design features [should be] made more concise by addressing the flexibility of the circuit design without going into the exact details implemented by the author. }
+
+We agree that this section does not add to the novel design presented in the manuscript, and is better suited as supplemental material.
+We have removed section II.D. (``Auxiliary design features'') and moved a few details we believe will be interesting to the reader from that section to a new paragraph at the end of section II.C. (``Digital control and slow modulation''), which reads ``The high-voltage design presented here has the flexibility to exist as a standalone circuit or be integrated with other electronics~\ldots~Of course many variations are possible, and we refer the reader to GitHub for more details on our specific implementation.''
+
+\textbf{3.}
+\textit{[I]t would be good to address how much current your circuit can provide, and compare that to typical currents needed for the different applications suggested in the introduction.}
+
+We agree this would be useful, and have included an estimate of the current at the end of the first paragraph in Sec~II.
+That sentence reads, ``The output current will be limited by the switching regulator and by the LM7171 op-amp used for low-noise stabilization (U2 in Fig.~1, which can supply at most $\approx\SI{100}{\milli\ampere}$), but is sufficient for nearly all piezoelectric applications.''
+
+\textbf{4.}
+\textit{You state that a high-voltage op-amp in a linear supply requires significant power.
+That statement might raise some eyebrows, because often in a regulated supply the transistor that burns off excess voltage is physically separate from the op-amp, such that it's not the op-amp itself that's sinking the power. 
+You might try rewording this just to avoid that critique.}
+
+We have reworded this sentence (last sentence in paragraph 3 of the introduction): ``While the op-amp can provide \SI{100}{\decibel} or more of power-supply noise rejection, linear regulators must dissipate excess voltages as heat and so may be more cumbersome to deploy in the laboratory.''
+
+
+\textbf{5.}
+\textit{Maybe I missed this - but was the data in figure 6 used to make figure 5? If so, that should be stated.}
+
+Fig. 5 was generated from an SR780 spectrum analyzer, while Fig. 6 was generated from a fast sampling ADC (PicoScope).
+We have modified the first sentence of the Fig. 5 caption to make this more explicit.
+It now reads ``Voltage noise power spectral density at various output voltages, as measured on an SR780 spectrum analyzer (color online).''  
+
+\textbf{6.}
+\textit{The term "quench" circuit is a good description. But it is not called by that name in the datasheet, which made me a little confused when I looked for it in there. Also, you might want to state that this circuit performs the same function as a similar circuit suggested by the datasheet, but that this circuit was modified to fit your design (in other words, this is not exactly the same circuit suggested in the datasheet).}
+
+We have modified the second sentence in the second-to-last paragraph of Sec.~II.C. (``Digital control and slow modulation'') to make this clearer.
+Specifically, we have moved reference to the datasheet ``FET'' circuit to a footnote.
+It now reads: ``\ldots To get around this limitation, we have added an auxiliary MOSFET ``quench'' circuit [FOOTNOTE: the quench circuit presented here is based on the pulldown FET discussed in the DRV2700 datasheet, with some additional modifications to suit our purposes.] to quickly shunt $\text{V}_\text{out}$ to ground (see Fig.~2).
+
+
+\textbf{7.}
+\textit{The noise model was very nice - and the agreement with measurement is surprisingly good! It is, however, something that most people implementing your design will only glance at. Mainly, we want to know what the noise is, and that it made sense to you, so that we know that there's not something you overlooked that could easily be changed to improve the circuit. As such, it might be nice to place this after you discuss measured results. Also, you compare the measured results to your model in this section, and it was a bit confusing because you hadn't talked about your measurements yet.}
+
+\textit{Overall, the paper was a bit dense. You might want to go over it and consider what would make the paper more useful for people that want to implement your design. Most of them will want a basic understanding, but will probably trust your work and not want to take the time to reproduce calculations, etc. Try to explain things more concisely. When you describe how a part of the circuit works, you might want to have a paragraph explaining what a particular section does before giving details. I like that the paper is detailed, and it should be. But you might be able to help the reader with a little more refinement and organization.}
+
+While we understand referee \#2's concern, this would require completely rewriting the paper to maintain a coherent flow. We think some of the confusion might arise from how the figures are placed in the draft (eg, results figures appearing side-by-side with the noise analysis figures). We have taken some care to re-format the figures so this is no longer true, which hopefully improves readability. We do try to motivate each section of the circuit heuristically before providing specific design details (eg, the caption to Fig.~1, last paragraph before Sec.~II.A, and the first sentences of each lettered subsection of Sec.~II.).
+
+In an attempt to address this concern, however, we have made the following changes:
+
+\begin{itemize}
+\item End of the caption in Fig.~2 now includes, ``\ldots and details of this circuit are discussed in Sec.~II.C.'', and the figure itself is placed on an earlier page (closer to the full schematic). This leaves more room for the subsequent figures to be placed closer to where they are discussed.
+\item Changed first sentence of the caption to Fig.~4 to read ``Modeled noise contributions (color online).'' to make this figure more distinct from figure from Fig.~5, which contains measured results.
+\item Results figures (\#5-7) are placed more closely to the results section.
+\item We modified the first two sentences of Sec.~III in an attempt to better motivate the subsequent discussion. They now read ``To better understand the circuit performance and the measured output noise reported in Sec.~IV, we introduce the noise model shown in Fig. 3. A summary of each noise contribution (op-amp, DAC, Johnson-Nyquist, and residual ripple from the DRV2700, all calculated at the node $\text{V}_\text{out}$) is shown in Fig.4, along with the cumulative root-mean-square (RMS) noise estimates in different frequency bands.''
+\end{itemize}
+
+We believe the noise analysis makes it clear how one could modify the circuit for different applications, and although it may get deep in the weeds, is an important part of the paper.
+For those who want to implement our circuit directly, this section can be neglected and the schematic/layout downloaded from GitHub.
+For those who want to make changes or improvements, this section is an orientation to the design considerations we made.
+
+\textbf{8.}
+\textit{There was very little discussion of other, similar work. Are there other papers that you need to cite?}
+
+We have added the additional reference \#6 (doi:10.1063/1.3234261), and incorporated an additional sentence in the second paragraph of the introduction which reads, ``Other designs separate high- and low-voltage control pathways, which can extend the bandwidth to $\approx\si{\mega\hertz}$, but the low-voltage control is AC-coupled to the output.''
+
+\textbf{9.}
+\textit{Finally, it would be really good if you had something to compare to your circuit. For example, if you used the DRV2700 in the standard Boost + Amplifier mode (which is a much simpler build than your circuit), how does its noise and modulation bandwidth compare with your circuit? How does it's conversion efficiency compare? (does it draw more than the 150 mA of your design?) etc. }
+
+We agree this would be nice for comparison, however we are not set up to easily perform this measurement.
+However, we would like to point out that using DRV2700 boost/amplifier requires the piezo to be driven differentially, which may not be suitable in some instances.
+
+With these changes, we believe the paper has been greatly improved.
+Points 1 \& 2 address the provisional publication recommendations of reviewer \#1, while the remaining points incorporate comments from reviewer \#2.
+We once again thank the referees and respectfully resubmit this paper to Review of Scientific Instruments.
+
+Sincerely,
+
+Neal Pisenti and Gretchen Campbell
+
+\end{document}  
