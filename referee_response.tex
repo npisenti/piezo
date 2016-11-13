@@ -40,7 +40,7 @@ We have also updated the figure caption to reflect this change.
 \textit{The section on Auxiliary design features [should be] made more concise by addressing the flexibility of the circuit design without going into the exact details implemented by the author. }
 
 We agree that this section does not add to the novel design presented in the manuscript, and is better suited as supplemental material.
-We have removed section II.D. (``Auxiliary design features'') and moved a few details we believe will be interesting to the reader from that section to a new paragraph at the end of section II.C. (``Digital control and slow modulation''), which reads ``The high-voltage design presented here has the flexibility to exist as a standalone circuit or be integrated with other electronics~\ldots~Of course many variations are possible, and we refer the reader to GitHub for more details on our specific implementation.''
+We have removed section II.D. (``Auxiliary design features'') and moved a few details we believe will be interesting to the reader from that section to a new paragraph at the end of section II.C. (``Digital control and slow modulation''), which reads ``The high-voltage design presented here has the flexibility to exist as a standalone circuit or be integrated with other electronics~\ldots~Of course many variations are possible, and we refer the reader to our GitHub page for more details on our specific implementation.''
 
 \textbf{Response to referee \#2}
 
@@ -48,14 +48,14 @@ We have removed section II.D. (``Auxiliary design features'') and moved a few de
 \textit{[I]t would be good to address how much current your circuit can provide, and compare that to typical currents needed for the different applications suggested in the introduction.}
 
 We agree this would be useful, and have included an estimate of the current at the end of the first paragraph in Sec~II.
-That sentence reads, ``The output current will be limited by the switching regulator and by the LM7171 op-amp used for low-noise stabilization (U2 in Fig.~1, which can supply at most $\approx\SI{100}{\milli\ampere}$), but is sufficient for nearly all piezoelectric applications.''
+That sentence reads, ``The high-voltage output current will be limited by the switching regulator and by the LM7171 op-amp used for low-noise stabilization (U2 in Fig.~1, which can supply at most $\approx\SI{100}{\milli\ampere}$), but is sufficient for nearly all piezoelectric applications.''
 
 \textbf{2.}
 \textit{You state that a high-voltage op-amp in a linear supply requires significant power.
 That statement might raise some eyebrows, because often in a regulated supply the transistor that burns off excess voltage is physically separate from the op-amp, such that it's not the op-amp itself that's sinking the power. 
 You might try rewording this just to avoid that critique.}
 
-We have reworded this sentence (last sentence in paragraph 3 of the introduction): ``While the op-amp can provide \SI{100}{\decibel} or more of power-supply noise rejection, linear regulators must dissipate excess voltages as heat and so may be more cumbersome to deploy in the laboratory.''
+We have reworded this sentence (last sentence in paragraph 3 of the introduction): ``While the op-amp can provide \SI{100}{\decibel} or more of power-supply noise rejection, linear regulators must handle any excess voltage by dissipating heat and so may be more cumbersome to deploy in the laboratory.''
 
 
 \textbf{3.}
@@ -63,7 +63,8 @@ We have reworded this sentence (last sentence in paragraph 3 of the introduction
 
 Fig. 5 was generated from an SR780 spectrum analyzer, while Fig. 6 was generated from a fast sampling ADC (PicoScope).
 We have modified the first sentence of the Fig. 5 caption to make this more explicit.
-It now reads ``Voltage noise power spectral density at various output voltages, as measured on an SR780 spectrum analyzer (color online).''  
+It now reads ``Voltage noise power spectral density at various output voltages, as measured on an SR780 spectrum analyzer (color online).''
+We also modified the first sentence of the caption to Fig. 6(a) to read, ``Short-time scatterplot, measured on a PicoScope~5442B (AC coupled).''
 
 \textbf{4.}
 \textit{The term "quench" circuit is a good description. But it is not called by that name in the datasheet, which made me a little confused when I looked for it in there. Also, you might want to state that this circuit performs the same function as a similar circuit suggested by the datasheet, but that this circuit was modified to fit your design (in other words, this is not exactly the same circuit suggested in the datasheet).}
@@ -107,6 +108,13 @@ We have added the additional reference \#6 (doi:10.1063/1.3234261), and incorpor
 
 We agree this would be nice for comparison, however we are not set up to easily perform this measurement.
 However, we would like to point out that using DRV2700 boost/amplifier requires the piezo to be driven differentially, which may not be suitable in some instances.
+
+\textbf{Additional copy-editing changes:}
+
+\textbf{1.} We swapped the order of the second and third sentences in the second paragraph of Sec. II.
+\\\\
+\hrule
+\newpage
 
 With these changes, we believe the paper has been greatly improved.
 The first two points address the provisional publication recommendations of reviewer \#1, while the remaining points incorporate comments from reviewer \#2.
