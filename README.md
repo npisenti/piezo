@@ -1,6 +1,7 @@
 # Ultra-low noise, high-voltage piezo driver
 
 DOI: [10.1063/1.4969059](http://dx.doi.org/10.1063/1.4969059)
+
 Arxiv version: [1609.03607](http://arxiv.org/abs/1609.03607)
 
 To compile, run `make` or use your favorite LaTeX toolchain.
